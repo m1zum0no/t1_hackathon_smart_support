@@ -4,7 +4,6 @@ export const useMainStore = defineStore("main", {
     return {
       isSearch: false,
       isChat: true,
-      isGroup: false,
       compactView: false,
     };
   },

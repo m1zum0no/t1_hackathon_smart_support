@@ -33,9 +33,6 @@
           :style="compactView ? { 'right': '30%' } : { 'right': '20%' }"><span>{{ totalUnreadMessagesCount }}</span></p>
       </div>
 
-      <v-icon size="large" class="flex-grow-1" id="icon-groups" :class="{ groupsTab: isGroup }" @click="toggleGroup"
-        color="icons">mdi-account-group
-      </v-icon>
 
     </div>
   </v-card>
@@ -64,7 +61,7 @@ const mainStore = useMainStore();
 const messageStore = useMessageStore();
 const userStore = useUserStore();
 
-const { isSearch, isChat, isGroup, compactView } = storeToRefs(mainStore);
+const { isSearch, isChat, compactView } = storeToRefs(mainStore);
 const { isBottom, totalUnreadMessagesCount } = storeToRefs(chatStore);
 const { currentTheme } = storeToRefs(userStore);
 
@@ -73,7 +70,6 @@ const { currentTheme } = storeToRefs(userStore);
 const toggleSearch = () => {
   isSearch.value = true;
   isChat.value = false;
-  isGroup.value = false;
   chatStore.removeUnassignedChat();
   messageStore.clearMoreMessagesToLoad();
   isBottom.value = true;
@@ -82,14 +78,8 @@ const toggleSearch = () => {
 const toggleChat = () => {
   isChat.value = true;
   isSearch.value = false;
-  isGroup.value = false;
 };
 
-const toggleGroup = () => {
-  isGroup.value = true;
-  isChat.value = false;
-  isSearch.value = false;
-};
 
 
 const logout = async () => {
@@ -131,7 +121,6 @@ const switchTheme = async () => {
 <style scoped>
 #icon-search:hover,
 #icon-chats:hover,
-#icon-groups:hover,
 #icon-settings:hover {
   color: rgb(var(--v-theme-primary)) !important;
 }
@@ -146,10 +135,6 @@ const switchTheme = async () => {
   animation: beat 0.5s;
 }
 
-.groupsTab {
-  color: rgb(var(--v-theme-primary)) !important;
-  animation: swing 0.5s;
-}
 
 .settings-items:hover {
   color: rgb(var(--v-theme-select));
@@ -173,23 +158,6 @@ const switchTheme = async () => {
   }
 }
 
-@keyframes swing {
-  20% {
-    transform: skew(-10deg);
-  }
-
-  40% {
-    transform: skew(-15deg);
-  }
-
-  60% {
-    transform: skew(10deg);
-  }
-
-  80% {
-    transform: skew(15deg);
-  }
-}
 
 @keyframes rotate {
 

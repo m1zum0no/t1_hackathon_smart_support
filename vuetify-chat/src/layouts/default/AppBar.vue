@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar flat id="app-bar" color="appbar" v-if="isGroup || isSearch || !compactView || compactView&&!chatSelected">
+  <v-app-bar flat id="app-bar" color="appbar" v-if="isSearch || !compactView || compactView&&!chatSelected">
     <router-link :to="{ name: 'Home' }" style="text-decoration: none; color: inherit" class="ml-2">
       <v-app-bar-title>
         <v-icon icon="mdi-chat" color="logoleft" style="z-index: 1;" />
@@ -56,7 +56,7 @@ const chatStore = useChatStore();
 
 
 const { isLoggedIn, currentUser } = storeToRefs(userStore);
-const { compactView, isChat, isGroup, isSearch } = storeToRefs(mainStore);
+const { compactView, isChat, isSearch } = storeToRefs(mainStore);
 const { chatSelected } = storeToRefs(chatStore);
 
 const defaultPhotoURL = new URL("@/assets/photo-default.png", import.meta.url).href;

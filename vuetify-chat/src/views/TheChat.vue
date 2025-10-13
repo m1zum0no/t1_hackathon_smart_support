@@ -23,8 +23,6 @@
         <!-- these two appear irrespective of view -->
 
         <SelectedChatWindow v-if="compactView && isChat && chatSelected" style="height: 600px" />
-        <GroupsList v-if="!compactView && isGroup" style="height: 640px" />
-        <EmptyGroupWindow v-if="compactView && isGroup" style="height: 540px" />
       </v-col>
       <v-col v-show="compactView">
         <MenuPanel />
@@ -38,7 +36,6 @@
         <SelectedChatWindow v-if="isChat && chatSelected" />
         <EmptyChatWindow v-else-if="isChat && !chatSelected" />
         <EmptySearchWindow v-else-if="isSearch" />
-        <EmptyGroupWindow v-else-if="isGroup" class="rounded-e-lg" />
       </v-col>
       <!-- RIGHT PANEL END -->
     </v-row>
@@ -97,9 +94,6 @@ const theme = useTheme();
 const ContactsList = defineAsyncComponent(() =>
   import("@/components/ContactsList.vue")
 );
-const GroupsList = defineAsyncComponent(() =>
-  import("@/components/GroupsList.vue")
-);
 
 import EmptyChatWindow from "@/components/EmptyChatWindow.vue";
 import ChatsList from "@/components/ChatsList.vue";
@@ -109,7 +103,6 @@ import ContactsLoading from "@/components/ContactsLoading.vue";
 
 
 import SelectedChatWindow from "@/components/chat/SelectedChatWindow.vue"
-import EmptyGroupWindow from "@/components/EmptyGroupWindow.vue"
 import EmptySearchWindow from "@/components/EmptySearchWindow.vue"
 
 import { useChatStore } from "@/store/chatStore";
@@ -126,7 +119,7 @@ const userStore = useUserStore();
 
 const { chatSelected } = storeToRefs(chatStore);
 const { systemMessage } = storeToRefs(messageStore);
-const { isSearch, isChat, isGroup, compactView } = storeToRefs(mainStore);
+const { isSearch, isChat, compactView } = storeToRefs(mainStore);
 const { currentUser, currentTheme } = storeToRefs(userStore);
 
 
