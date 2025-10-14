@@ -13,12 +13,17 @@ from src.chat.rag import create_faiss_index, SciboxEmbeddings, DATASET_PATH, FAI
 from src.config import settings
 from openai import OpenAI
 import logging
+import argparse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main():
     """Initialize FAISS index from dataset."""
+    parser = argparse.ArgumentParser(description="Initialize FAISS index.")
+    parser.add_argument("--recreate", action="store_true", help="Recreate the index if it already exists.")
+    args = parser.parse_args()
+
     logger.info("Starting FAISS index initialization...")
     
     # Check if dataset exists
@@ -29,10 +34,10 @@ def main():
     
     # Check if index already exists
     if os.path.exists(FAISS_INDEX_PATH) and os.path.exists(METADATA_PATH):
-        response = input("FAISS index already exists. Do you want to recreate it? (y/N): ")
-        if response.lower() != 'y':
-            logger.info("Skipping index creation.")
+        if not args.recreate:
+            logger.info("FAISS index already exists. Skipping creation. Use --recreate to overwrite.")
             return 0
+        logger.info("Recreating FAISS index as requested.")
     
     try:
         # Initialize OpenAI client for Scibox API

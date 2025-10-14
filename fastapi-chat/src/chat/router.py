@@ -5,6 +5,7 @@ from uuid import UUID
 
 import redis.asyncio as aioredis
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.concurrency import run_in_threadpool
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.chat.schemas import (
@@ -206,4 +207,4 @@ async def get_older_messages(
 
 @chat_router.post("/chat/hint/", summary="Get a hint for a chat", response_model=Hint)
 async def get_hint_view(query: str = Query(..., description="The customer query to get a hint for")):
-    return generate_hint(query)
+    return await run_in_threadpool(generate_hint, query)

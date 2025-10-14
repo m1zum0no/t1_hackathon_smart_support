@@ -1,6 +1,29 @@
-FROM python:3.11.3-slim
+# Build stage
+FROM python:3.11.3-slim AS builder
 
-RUN apt-get update && apt-get -y upgrade
+ENV \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VERSION=1.5.1
+
+WORKDIR /opt/chat
+
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential && \
+    pip install "poetry==$POETRY_VERSION" && \
+    poetry config virtualenvs.create false
+
+# Copy dependency files
+COPY pyproject.toml poetry.lock* ./
+
+# Install dependencies
+RUN poetry install --no-root --no-dev && \
+    apt-get purge -y --auto-remove build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Runtime stage
+FROM python:3.11.3-slim
 
 ENV \
     PYTHONFAULTHANDLER=1 \
@@ -10,19 +33,13 @@ ENV \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_DEFAULT_TIMEOUT=100
 
-ENV \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VERSION=1.5.1
-
 EXPOSE 8001
 
 WORKDIR /opt/chat
 
-COPY pyproject.toml ./
-RUN pip install "poetry==$POETRY_VERSION"
-RUN poetry install --no-root --no-dev
+# Copy installed dependencies from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
-COPY src src
-
+# Copy application code
 COPY . .
