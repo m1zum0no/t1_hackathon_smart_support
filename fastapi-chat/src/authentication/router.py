@@ -8,14 +8,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.authentication.schemas import GoogleLoginSchema, UserLoginResponseSchema
+from src.authentication.schemas import UserLoginResponseSchema
 from src.authentication.services import (
     authenticate_user,
-    create_user_from_google_credentials,
-    get_user_by_email,
     get_user_by_login_identifier,
     update_user_last_login,
-    verify_google_token,
 )
 from src.authentication.utils import create_access_token, create_refresh_token
 from src.config import settings
@@ -28,47 +25,6 @@ logger = logging.getLogger(__name__)
 auth_router = APIRouter(tags=["Authentication"])
 
 
-@auth_router.post(
-    "/google-login/",
-    dependencies=[
-        Depends(RateLimiter(times=50, hours=24)),  # keep lower of result on top
-        Depends(RateLimiter(times=10, minutes=1)),
-    ],
-    summary="Login with Google oauth2",
-)
-async def login_with_google(
-    response: Response,
-    google_login_schema: GoogleLoginSchema,
-    background_tasks: BackgroundTasks,
-    db_session: AsyncSession = Depends(get_async_session),
-):
-    google_access_token: str = google_login_schema.access_token
-    user_info: dict[str, str] | None = await verify_google_token(google_access_token)
-
-    if not user_info:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not verify Google credentials")
-
-    # email field is case insensitive, db holds only lower case representation
-    email: str = user_info.get("email", "").lower()
-    if not email:
-        HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email was not provided")
-
-    if not (user := await get_user_by_email(db_session, email=email)):
-        user: User = await create_user_from_google_credentials(db_session, **user_info)
-
-    else:
-        # update last login for existing user
-        background_tasks.add_task(update_user_last_login, db_session, user=user)
-
-    access_token: str = create_access_token(email)
-    refresh_token: str = create_refresh_token(email)
-
-    # Send access and refresh tokens in HTTP only cookies
-    response.set_cookie(key="access_token", value=access_token, httponly=True, samesite="none", secure=True)
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, samesite="none", secure=True)
-
-    login_response = UserLoginResponseSchema.model_validate(user)
-    return login_response
 
 
 @auth_router.post(

@@ -194,5 +194,10 @@ export const useMessageStore = defineStore("messages", {
   },
   getters: {
     getEarliestUnreadMessageIndex: (state) => state.earliestUnreadMessageIndex,
+    messageExists: (state) => (messageGUID) => {
+      return state.currentChatMessages.some(
+        (message) => message.message_guid === messageGUID
+      );
+    },
   },
 });

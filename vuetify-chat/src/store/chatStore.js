@@ -177,8 +177,8 @@ export const useChatStore = defineStore("chat", {
       messageStore.loadingMessages = false;
 
       // recalculate new messages count for chat based on newly loaded messages
-      directChat.new_messages_count =
-        messageStore.calculateNewMessagesCountForChat();
+      directChat.new_messages_count = 0;
+      this.calculateTotalUnreadMessagesCount();
 
 
       // traverse through each message to find earliest unread message

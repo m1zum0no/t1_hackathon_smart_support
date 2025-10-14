@@ -12,11 +12,14 @@
 .bubble {
   position: relative;
   line-height: 24px;
-  width: 300px;
+  max-width: 300px;
+  width: fit-content;
   background: #B9F6CA;
   border-radius: 25px;
-  text-align: center;
+  text-align: left;
   color: #000;
+  padding: 6px 12px;
+  margin-bottom: 10px;
 }
 
 .bubble-bottom-right:before {

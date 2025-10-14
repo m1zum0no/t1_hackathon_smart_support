@@ -1,13 +1,8 @@
 <template>
-  <div>
+  <div class="chat-window-container">
     <ChatBoxHeader />
     <MainChat />
-    <div style="position: relative;">
-      <!-- combine v-if and v-show to not load component in mobile view -->
-      <EmojiPicker v-if="!compactView" v-show="showEmoji" style="position: absolute; bottom: 80%;"
-        @select="onSelectEmoji" />
-    </div>
-
+    
     <v-dialog width="500" v-model="showAttachmentPreview" :close-on-content-click="false">
       <v-card class="rounded-lg">
         <v-icon icon="mdi-close" class="ml-auto mr-2 mt-2 mb-n3" color="black" @click="closePreview" />
@@ -29,33 +24,35 @@
       </v-card>
 
     </v-dialog>
+    
+    <!-- EMOJI PICKER - positioned above input -->
+    <div class="emoji-picker-container">
+      <EmojiPicker v-if="!compactView" v-show="showEmoji" @select="onSelectEmoji" />
+    </div>
+    
     <!-- SEND BUTTON COMPONENT START -->
-    <v-card class="rounded-0 rounded-be-lg">
-      <v-row align="center" justify="center" no-gutters>
-        <p class="ml-2 mr-n2">
+    <v-card class="rounded-0 rounded-be-lg input-container">
+      <v-row align="end" justify="center" no-gutters class="input-row">
+        <p class="ml-2 mr-n2 button-wrapper">
           <v-file-input class="file-input text-icons font-weight-bold" @update:model-value="handleFileUpload" />
         </p>
 
-        <v-icon v-if="!compactView" class="ml-2 mr-2" size="x-large" color="icons" :class="{ activeEmoji: showEmoji }"
+        <v-icon v-if="!compactView" class="ml-2 mr-2 button-wrapper" size="x-large" color="icons" :class="{ activeEmoji: showEmoji }"
           @click="toggleEmoji">mdi-emoticon-happy-outline</v-icon>
         <!-- @keydown.enter.exact.prevent -> Prevents next line on clicking ENTER -->
         <!-- We should be able to add a new line by pressing SHIFT+ENTER -->
         <!-- @keydown.enter -->
-        <v-textarea ref="textInput" @keydown.enter.prevent="sendMessage" hide-details label="Type your text" rows="1"
-          v-model="messageToSend" auto-grow variant="solo" @input="websocketStore.handleUserTyping"
-          :readonly="inputLocked || loadingMessages"></v-textarea>
+        <v-textarea ref="textInput" @keydown.enter.prevent="sendMessage" hide-details placeholder="Type your text" rows="1"
+          v-model="messageToSend" auto-grow max-rows="8" variant="solo" @input="websocketStore.handleUserTyping"
+          :readonly="inputLocked || loadingMessages" class="limited-textarea"></v-textarea>
 
-        <v-btn @click="sendMessage" icon="mdi-send" variant="plain"
-          :color="messageToSend === '' ? 'blue-grey-lighten-2' : 'send'" size="x-large" class="ml-0"
+        <v-btn @click="sendMessage" icon="mdi-send" variant="plain" class="ml-0 button-wrapper"
+          :color="messageToSend === '' ? 'blue-grey-lighten-2' : 'send'" size="x-large"
           style="font-size: 30px; transform: rotate(-5deg);">
         </v-btn>
       </v-row>
 
-      <v-row v-show="friendTyping" class="mb-1 mt-0 ml-5 text-teal-darken-3">
-        <strong>{{ currentFriendFirstName }}</strong>&nbsp;is typing
-        <ThreeDots class="ml-n3" />
-      </v-row>
-      <v-row v-show="!friendTyping" class="mb-1 mt-0 ml-5" style="user-select: none;">&nbsp;</v-row>
+      <v-row class="mb-1 mt-0 ml-5">&nbsp;</v-row>
     </v-card>
     <!-- SEND BUTTON COMPONENT END -->
   </div>
@@ -90,7 +87,6 @@ const userStore = useUserStore();
 
 
 const { currentChatGUID, inputLocked, friendTyping, currentFriendFirstName } = storeToRefs(chatStore);
-const { socket } = storeToRefs(websocketStore);
 const { compactView } = storeToRefs(mainStore);
 const { currentUser } = storeToRefs(userStore);
 const { currentChatMessages, loadingMessages } = storeToRefs(messageStore);
@@ -215,4 +211,45 @@ const sendMessage = async () => {
 .file-input:deep().v-input__details {
   display: none;
 }
+
+/* Fixed container - prevents dynamic growth */
+.chat-window-container {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Emoji picker positioned above input */
+.emoji-picker-container {
+  position: absolute;
+  bottom: 90px;
+  left: 0;
+  right: 0;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.emoji-picker-container > * {
+  pointer-events: auto;
+}
+
+/* Input container - fixed at bottom, grows upward */
+.input-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+/* Keep buttons aligned to bottom */
+.input-row {
+  align-items: flex-end !important;
+}
+
+.button-wrapper {
+  align-self: flex-end;
+  padding-bottom: 8px;
+}
+
 </style>

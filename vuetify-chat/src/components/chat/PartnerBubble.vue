@@ -1,5 +1,5 @@
 <template>
-  <div ref="messageBubble" class="bubble bubble-bottom-left">
+  <div ref="messageBubble" class="bubble bubble-bottom-left pa-0">
     <slot></slot>
   </div>
 </template>
@@ -24,11 +24,14 @@ onMounted(() => {
 .bubble {
   position: relative;
   line-height: 24px;
-  width: 300px;
+  max-width: 300px;
+  width: fit-content;
   background: #f5f5f5;
   border-radius: 25px;
-  text-align: center;
+  text-align: left;
   color: #000;
+  padding: 6px 12px;
+  margin-bottom: 10px;
 }
 
 .bubble-bottom-left:before {

@@ -14,7 +14,7 @@
           <p class="text-primary font-weight-medium">Unread messages</p>
         </div>
         <SpeakerBubble v-if="message.user_guid === currentUser.userGUID" class="ml-auto mr-2">
-          <v-list-item class="py-2 my-3 text-right">
+          <v-list-item class="py-2 my-3 text-left">
             <v-list-item-title class="text-wrap">{{
               message.content
             }}</v-list-item-title>

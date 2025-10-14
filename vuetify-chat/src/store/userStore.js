@@ -74,50 +74,6 @@ export const useUserStore = defineStore("user", {
         throw error;
       }
     },
-    googleAuthenticate() {
-      let clientID = import.meta.env.VITE_GOOGLE_CLIENT_ID
-      let authEndpoint = 'https://accounts.google.com/o/oauth2/auth'
-      let scope = 'openid profile email'
-      let responseType = 'token'
-      let redirectURI = `${window.location.origin}/callback`
-
-      const authUrl = `${authEndpoint}?client_id=${clientID}&redirect_uri=${redirectURI}&scope=${scope}&response_type=${responseType}`;
-      // Calculate the center position
-      const left = window.screen.width / 2 - 300; // Adjust 300 to half of the pop-up window width
-      const top = window.screen.height / 2 - 300; // Adjust 300 to half of the pop-up window height
-
-      // Open the URL in a new pop-up window
-      const popupWindow = window.open(authUrl, "_blank", `width=600,height=600,left=${left},top=${top}`);
-
-      // Optional: Focus on the new window
-      if (popupWindow) {
-        popupWindow.focus();
-      }
-    },
-    async loginWithGoogle(accessToken) {
-      try {
-        const googleLoginURL = "/google-login/";
-        const response = await axios.post(googleLoginURL, {
-          access_token: accessToken,
-        });
-
-        let userInfo = response.data;
-        // Handle user profile photo
-        this.currentUser = {
-          userGUID: userInfo.user_guid,
-          email: userInfo.email,
-          username: userInfo.username,
-          firstName: userInfo.first_name,
-          lastName: userInfo.last_name,
-          userImage: userInfo.user_image,
-        };
-        this.isLoggedIn = true;
-        return true;
-      } catch (error) {
-        console.log("Error while authenticating with Google", error);
-        throw error;
-      }
-    },
     async setUserTheme(theme) {
       const response = await axios.post("/user/settings/theme/", {theme: theme})
       this.currentTheme = theme

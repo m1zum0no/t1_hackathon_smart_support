@@ -16,7 +16,12 @@
           class="profile-image">
         <img v-else :src="defaultPhotoURL" alt="defaultUserImage" class="profile-image">
         <StatusCircle :friendStatus="friendStatuses[currentFriendGUID]" />
+        <!-- Typing status -->
         <span class="ml-1">{{ currentFriendFirstName }}</span>
+        <v-row v-show="friendTyping" class="mb-1 mt-1 ml-1 mr-3" :class="currentTheme === 'teal'? 'filter-teal' : 'filter-midnight'">
+            is typing
+            <ThreeDots class="ml-n3" />
+        </v-row>
       </div>
 
       <v-menu :close-on-content-click="false">
@@ -45,9 +50,11 @@ import { useUserStore } from "@/store/userStore";
 import { useMainStore } from "@/store/mainStore";
 import { useWebsocketStore } from "@/store/websocketStore";
 
-import { ref } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 
 import StatusCircle from "@/components/StatusCircle.vue";
+
+const ThreeDots = defineAsyncComponent(() => import("@/components/chat/ThreeDots.vue"))
 
 const chatStore = useChatStore();
 const userStore = useUserStore();
@@ -57,7 +64,7 @@ const websocketStore = useWebsocketStore();
 
 const { compactView } = storeToRefs(mainStore);
 const { friendStatuses, currentTheme } = storeToRefs(userStore);
-const { currentFriendUserName, currentFriendFirstName, currentFriendImageError, currentFriendGUID, currentFriendImage, chatSelected, currentChatGUID } = storeToRefs(chatStore);
+const { currentFriendUserName, currentFriendFirstName, currentFriendImageError, currentFriendGUID, currentFriendImage, chatSelected, currentChatGUID, friendTyping } = storeToRefs(chatStore);
 
 const ArrowBackImageURL = new URL("@/assets/arrow_back.svg", import.meta.url).href;
 const defaultPhotoURL = new URL("@/assets/photo-default.png", import.meta.url).href;
@@ -117,5 +124,9 @@ const deleteChat = async (chatGUID) => {
   position: absolute;
   bottom: 0;
   left: -25%;
+}
+
+.typing-status {
+  font-size: 0.8rem;
 }
 </style>

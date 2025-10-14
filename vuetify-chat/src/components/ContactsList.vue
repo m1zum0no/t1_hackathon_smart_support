@@ -2,7 +2,7 @@
   <!-- style="overflow: auto; color: inherit" class="rounded-0" -->
   <div id="contactList" class="bg-items">
     <v-text-field variant="solo" class="mx-3 py-2 search-input" rounded prepend-inner-icon="mdi-magnify" clearable
-      v-model="searchContact" hide-details></v-text-field>
+      v-model="searchContact" hide-details placeholder="Search users"></v-text-field>
     <v-list v-for="user in filteredUsers()" :key="user.guid" class="bg-items"
       style="cursor: pointer; user-select: none;" >
       <v-list-item v-ripple="false" class="list-item mx-3 rounded-lg" @click="userSelected(user.guid)">

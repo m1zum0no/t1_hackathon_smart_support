@@ -3,9 +3,6 @@ from pydantic import UUID4, BaseModel, EmailStr, Field, field_validator
 from src.config import settings
 
 
-class GoogleLoginSchema(BaseModel):
-    access_token: str
-
 
 class UserLoginResponseSchema(BaseModel):
     guid: UUID4 = Field(..., serialization_alias="user_guid")

@@ -78,10 +78,6 @@ const routes = [
       }
     },
   },
-  {
-    path: "/callback/",
-    component: () => import("@/views/GoogleCallback.vue"),
-  }
 ];
 
 const router = createRouter({
