@@ -4,11 +4,9 @@ node_modules
 /ios
 /android
 
-.env
-
-# local env files
-.env.local
-.env.*.local
+# .env
+# .env.local
+# .env.*.local
 
 # Log files
 npm-debug.log*
