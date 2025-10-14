@@ -205,5 +205,5 @@ async def get_older_messages(
 
 
 @chat_router.post("/chat/hint/", summary="Get a hint for a chat", response_model=Hint)
-async def get_hint_view(hint_request: HintRequestSchema):
-    return generate_hint(hint_request.query)
+async def get_hint_view(query: str = Query(..., description="The customer query to get a hint for")):
+    return generate_hint(query)

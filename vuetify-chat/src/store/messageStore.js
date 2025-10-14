@@ -195,16 +195,21 @@ export const useMessageStore = defineStore("messages", {
     async getHint(query) {
       try {
         const response = await getHint(query);
+        const hintData = response.data;
         this.currentChatMessages.unshift({
           user_guid: 'system',
           chat_guid: this.currentChatGUID,
-          content: response.data.response,
+          content: hintData.response,
+          category: hintData.category,
+          subcategory: hintData.subcategory,
+          template: hintData.template,
+          confidence: hintData.confidence,
           created_at: new Date(),
           is_read: true,
         });
       } catch (error) {
         console.error("Error getting hint:", error);
-        this.displaySystemMessage("error", "Failed to get hint. Please try again.");
+        this.displaySystemMessage("error", "Failed to get hint. Please try again.", 5000);
       }
     },
   },

@@ -57,8 +57,11 @@ class GlobalSettings(BaseSettings):
     # static files
     STATIC_HOST: str = "http://localhost:8001"
     
-    # GigaChat
-    GIGACHAT_CLIENT_SECRET: str = "bee83aea-bac4-4adf-bdf6-be1911c06c06"
+    # Scibox LLM API
+    SCIBOX_API_KEY: str = "sk-Crh_Ol2yEhe0c8tpELeTkQ"
+    SCIBOX_BASE_URL: str = "https://llm.t1v.scibox.tech/v1"
+    SCIBOX_LLM_MODEL: str = "Qwen2.5-72B-Instruct-AWQ"
+    SCIBOX_EMBEDDING_MODEL: str = "bge-m3"
 
 
 class TestSettings(GlobalSettings):
