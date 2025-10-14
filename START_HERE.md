@@ -1,5 +1,27 @@
 # 🚀 START HERE - Smart Support RAG System
 
+## 🐳 Quick Start with Docker (Recommended)
+
+**Fastest way to get started:**
+
+```bash
+# 1. Ensure dataset exists
+ls fastapi-chat/data/smart_support.xlsx
+
+# 2. Start everything with Docker
+docker-compose up --build
+```
+
+Wait 2-3 minutes, then open: **http://localhost:3000**
+
+**For detailed Docker instructions, see [DOCKER_QUICKSTART.md](DOCKER_QUICKSTART.md)**
+
+---
+
+## 💻 Manual Setup (Alternative)
+
+If you prefer to run without Docker, follow the instructions below.
+
 ## ✅ What's Been Done
 
 I've successfully integrated the RAG pipeline with Scibox models into your application. The lightbulb button (💡) will now return AI-powered hints with:

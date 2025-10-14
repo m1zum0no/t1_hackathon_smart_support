@@ -50,7 +50,7 @@
           :color="messageToSend === '' ? 'blue-grey-lighten-2' : 'send'" size="x-large"
           style="font-size: 30px; transform: rotate(-5deg);">
         </v-btn>
-        <v-btn @click="requestHint" icon="mdi-lightbulb-on-outline" variant="plain" class="ml-0 button-wrapper"
+        <v-btn @click="console.log('Lightbulb button clicked'); requestHint();" icon="mdi-lightbulb-on-outline" variant="plain" class="ml-0 button-wrapper"
           color="yellow-darken-2" size="x-large">
         </v-btn>
       </v-row>
@@ -62,15 +62,13 @@
 </template>
 
 <script setup>
-import { ref, nextTick, defineAsyncComponent } from "vue";
+import { ref, nextTick } from "vue";
 import { storeToRefs } from "pinia";
 
 
 
 import EmojiPicker from 'vue3-emoji-picker'
 import 'vue3-emoji-picker/css'
-
-const ThreeDots = defineAsyncComponent(() => import("@/components/chat/ThreeDots.vue"))
 
 import MainChat from "@/components/chat/MainChat.vue";
 import ChatBoxHeader from "@/components/chat/ChatBoxHeader.vue";
@@ -89,7 +87,7 @@ const messageStore = useMessageStore();
 const userStore = useUserStore();
 
 
-const { currentChatGUID, inputLocked, friendTyping, currentFriendFirstName } = storeToRefs(chatStore);
+const { currentChatGUID, inputLocked } = storeToRefs(chatStore);
 const { compactView } = storeToRefs(mainStore);
 const { currentUser } = storeToRefs(userStore);
 const { currentChatMessages, loadingMessages } = storeToRefs(messageStore);

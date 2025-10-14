@@ -1,31 +1,112 @@
-# How to run web-service 
+# 🤖 Smart Support RAG System
 
-## Backend:
-### Run:
-``` bash
-cd fastapi-chat
-docker network create chat-net
-docker-compose up --build -d
-docker exec chat-backend poetry run alembic upgrade head
-```
+AI-powered customer support system using RAG (Retrieval-Augmented Generation) with Scibox LLM (Qwen2.5-72B) and bge-m3 embeddings.
 
-### Stop:
+## ⚡ Quick Start with Docker (Recommended)
+
 ```bash
-docker-compose down
-docker-compose rm -f
+# 1. Ensure dataset exists
+ls fastapi-chat/data/smart_support.xlsx
+
+# 2. Start everything with one command
+docker-compose up --build
+
+# 3. Open browser
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8001/docs
 ```
 
-## Frontend:
+**📚 See [DOCKER_QUICKSTART.md](DOCKER_QUICKSTART.md) for detailed Docker instructions.**
 
-### Run:
+---
+
+## 📖 Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[START_HERE.md](START_HERE.md)** | 🚀 Main entry point - start here! |
+| **[DOCKER_QUICKSTART.md](DOCKER_QUICKSTART.md)** | 🐳 Docker setup (2 minutes) |
+| **[DOCKER_GUIDE.md](DOCKER_GUIDE.md)** | 🐳 Complete Docker documentation |
+| **[QUICKSTART.md](QUICKSTART.md)** | 💻 Manual setup without Docker |
+| **[RAG_INTEGRATION.md](RAG_INTEGRATION.md)** | 🧠 RAG pipeline technical details |
+| **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** | 📝 Complete changelog |
+| **[SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md)** | 🏗️ Architecture diagrams |
+
+---
+
+## ✨ Features
+
+- 🤖 **AI-Powered Hints**: Click the 💡 button to get intelligent response suggestions
+- 🏷️ **Auto Classification**: Automatic category and subcategory detection
+- 📊 **Confidence Scoring**: High/medium/low confidence indicators
+- 📋 **Template References**: Pre-built response templates for operators
+- 🎨 **Modern UI**: Beautiful Vue.js interface with Vuetify components
+- ⚡ **Fast Retrieval**: FAISS vector search (<10ms)
+- 🐳 **Docker Ready**: One-command deployment
+- 🔄 **Hot Reload**: Development mode with instant updates
+
+---
+
+## 🏗️ Architecture
+
+```
+User Query → Frontend (Vue.js)
+    ↓
+FastAPI Backend
+    ↓
+RAG Pipeline:
+  1. Query Embedding (bge-m3)
+  2. FAISS Similarity Search
+  3. Context Retrieval
+  4. Classification
+  5. LLM Generation (Qwen2.5-72B)
+    ↓
+Response with:
+  - Answer text
+  - Category/Subcategory
+  - Template reference
+  - Confidence level
+```
+
+---
+
+## 🛠️ Tech Stack
+
+| Component | Technology | Purpose |
+|-----------|------------|----------|
+| **Frontend** | Vue.js 3 + Vuetify | Modern chat interface |
+| **Backend** | FastAPI + Python 3.11 | REST API + WebSocket |
+| **LLM** | Qwen2.5-72B-Instruct-AWQ | Response generation |
+| **Embeddings** | bge-m3 (1024-dim) | Semantic search |
+| **Vector DB** | FAISS | Fast similarity search |
+| **Database** | PostgreSQL 15 | User data, chats, messages |
+| **Cache** | Redis | Session management |
+| **Deployment** | Docker + Docker Compose | Containerization |
+
+---
+
+## 🚀 Alternative: Manual Setup
+
+If you prefer not to use Docker:
+
+### Backend:
+```bash
+cd fastapi-chat
+poetry install
+poetry run python scripts/init_faiss_index.py
+poetry run uvicorn src.main:app --reload --port 8001
+```
+
+### Frontend:
 ```bash
 cd vuetify-chat
 npm install
 npm run dev
 ```
 
-### Stop:
-```Ctrl-C```
+**See [QUICKSTART.md](QUICKSTART.md) for detailed manual setup.**
+
+---
 
 ## Stack
 
@@ -40,7 +121,6 @@ For hackathon we choose simple, fast stack to implement, to fit in time. Everyth
 | LLM for generation/classification/NER | Scibox API (models: GPT-4o-mini or Grok analog) | OpenAI-compatible, supports streaming. For NER and classification: LangChain chain (e.g., create_extraction_chain). |
 | Web interface | FastAPI + Vue.js | Quick chat prototyping with real-time updates. WebSocket for streaming suggestions. |
 | Дополнительно | Pydantic (для валидации), Celery (если нужен background ingestion) | Для обработки больших баз знаний. |
-
 
 ## Step-by-step algorithm (RAG pipeline with classification and NER)
 

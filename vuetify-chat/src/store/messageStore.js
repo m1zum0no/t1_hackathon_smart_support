@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import axios from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
 import { useWebsocketStore } from "@/store/websocketStore";
+import { useChatStore } from "@/store/chatStore";
 import { getHint } from "@/api/messages";
 
 export const useMessageStore = defineStore("messages", {
@@ -193,12 +194,13 @@ export const useMessageStore = defineStore("messages", {
       }, 0);
     },
     async getHint(query) {
+      const chatStore = useChatStore();
       try {
         const response = await getHint(query);
         const hintData = response.data;
         this.currentChatMessages.unshift({
           user_guid: 'system',
-          chat_guid: this.currentChatGUID,
+          chat_guid: chatStore.currentChatGUID,
           content: hintData.response,
           category: hintData.category,
           subcategory: hintData.subcategory,
