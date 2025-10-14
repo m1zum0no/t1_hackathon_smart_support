@@ -14,6 +14,7 @@ from src.chat.schemas import (
     GetDirectChatsSchema,
     GetMessagesSchema,
     GetOldMessagesSchema,
+    HintRequestSchema,
 )
 from src.chat.services import (
     create_direct_chat,
@@ -31,6 +32,7 @@ from src.config import settings
 from src.database import get_async_session
 from src.dependencies import get_cache, get_cache_setting, get_current_user
 from src.models import Chat, Message, User
+from src.chat.rag import generate_hint, Hint
 from src.utils import clear_cache_for_get_direct_chats
 
 chat_router = APIRouter(tags=["Chat Management"])
@@ -200,3 +202,8 @@ async def get_older_messages(
         db_session, chat=chat, user_id=current_user.id, created_at=message.created_at, limit=limit
     )
     return GetOldMessagesSchema(messages=old_messages, has_more_messages=has_more_messages)
+
+
+@chat_router.post("/chat/hint/", summary="Get a hint for a chat", response_model=Hint)
+async def get_hint_view(hint_request: HintRequestSchema):
+    return generate_hint(hint_request.query)

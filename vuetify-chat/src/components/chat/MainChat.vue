@@ -13,7 +13,10 @@
         <div v-show="earliestUnreadMessageIndex === index" class="bg-items text-center py-2">
           <p class="text-primary font-weight-medium">Unread messages</p>
         </div>
-        <SpeakerBubble v-if="message.user_guid === currentUser.userGUID" class="ml-auto mr-2">
+        <div v-if="message.user_guid === 'system'" class="system-message-container">
+          <p class="system-message">{{ message.content }}</p>
+        </div>
+        <SpeakerBubble v-else-if="message.user_guid === currentUser.userGUID" class="ml-auto mr-2">
           <v-list-item class="py-2 my-3 text-left">
             <v-list-item-title class="text-wrap">{{
               message.content
@@ -155,6 +158,19 @@ onMounted(() => {
 
 
 <style scoped>
+.system-message-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.system-message {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 10px;
+  color: #333;
+  font-style: italic;
+}
 #container {
   /* height: 450px; */
   overflow: auto;

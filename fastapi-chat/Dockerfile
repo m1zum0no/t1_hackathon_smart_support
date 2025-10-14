@@ -19,15 +19,10 @@ EXPOSE 8001
 
 WORKDIR /opt/chat
 
-COPY poetry.lock pyproject.toml ./
+COPY pyproject.toml ./
 RUN pip install "poetry==$POETRY_VERSION"
-# Export dependencies and debug
-RUN poetry export --with main,test,lint --output requirements.txt
-# Output requirements.txt for debugging
-RUN cat requirements.txt
-# Install dependencies
-RUN pip install -r requirements.txt
-# Explicitly install uvicorn to ensure it’s present
-RUN pip install uvicorn==0.23.2
+RUN poetry install --no-root --no-dev
+
+COPY src src
 
 COPY . .

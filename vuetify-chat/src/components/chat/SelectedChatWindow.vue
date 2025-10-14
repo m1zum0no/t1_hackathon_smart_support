@@ -50,6 +50,9 @@
           :color="messageToSend === '' ? 'blue-grey-lighten-2' : 'send'" size="x-large"
           style="font-size: 30px; transform: rotate(-5deg);">
         </v-btn>
+        <v-btn @click="requestHint" icon="mdi-lightbulb-on-outline" variant="plain" class="ml-0 button-wrapper"
+          color="yellow-darken-2" size="x-large">
+        </v-btn>
       </v-row>
 
       <v-row class="mb-1 mt-0 ml-5">&nbsp;</v-row>
@@ -163,6 +166,13 @@ const onSelectEmoji = (emoji) => {
     textInput.value.focus();
   })
 }
+const requestHint = async () => {
+  if (messageToSend.value.trim() === "") {
+    return; // Don't send empty messages
+  }
+  await messageStore.getHint(messageToSend.value);
+};
+
 const sendMessage = async () => {
   if (messageToSend.value.trim() === "") {
     return; // Don't send empty messages

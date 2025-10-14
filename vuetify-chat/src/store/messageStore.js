@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import axios from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
 import { useWebsocketStore } from "@/store/websocketStore";
+import { getMessages, getOlderMessages, getHint } from "@/api/messages";
 
 export const useMessageStore = defineStore("messages", {
   state: () => {
@@ -190,6 +191,21 @@ export const useMessageStore = defineStore("messages", {
           return count;
         }
       }, 0);
+    },
+    async getHint(query) {
+      try {
+        const response = await getHint(query);
+        this.currentChatMessages.unshift({
+          user_guid: 'system',
+          chat_guid: this.currentChatGUID,
+          content: response.data.response,
+          created_at: new Date(),
+          is_read: true,
+        });
+      } catch (error) {
+        console.error("Error getting hint:", error);
+        this.displaySystemMessage("error", "Failed to get hint. Please try again.");
+      }
     },
   },
   getters: {

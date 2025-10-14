@@ -93,3 +93,7 @@ class GetMessagesSchema(BaseModel):
 class GetOldMessagesSchema(BaseModel):
     messages: list[GetMessageSchema]
     has_more_messages: bool
+
+
+class HintRequestSchema(BaseModel):
+    query: str

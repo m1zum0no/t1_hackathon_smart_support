@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: chat-backend
+    env_file:
+      - src/.env
     environment:
       - ENVIRONMENT=development
     ports:
