@@ -1,7 +1,7 @@
-# Запуск веб-сервиса:
+# How to run web-service 
 
 ## Backend:
-### Запуск:
+### Run:
 ``` bash
 cd fastapi-chat
 docker network create chat-net
@@ -9,7 +9,7 @@ docker-compose up --build -d
 docker exec chat-backend poetry run alembic upgrade head
 ```
 
-### Остановка:
+### Stop:
 ```bash
 docker-compose down
 docker-compose rm -f
@@ -17,91 +17,72 @@ docker-compose rm -f
 
 ## Frontend:
 
-### Запуск:
+### Run:
 ```bash
 cd vuetify-chat
 npm install
 npm run dev
 ```
 
-### Остановка:
+### Stop:
 ```Ctrl-C```
 
-# Тестирование rag-customer-support-using-gigachat-and-faiss.ipynb
-1. Перейти на https://developers.sber.ru/docs/ru/gigachat/tariffs/individual-tariffs , последовать инструкции получения Freemium
-2. Получить GigaChat API Token
-3. Зарегистрироваться на Kaggle, открыть ноутбук в нем
-4. Через `Add-ons > Secrets` добавить GigaChat API Token в переменную с именем `GIGACHAT_CLIENT_SECRET`
-5. Запускать ячейки   
+## Stack
 
-# Алгоритм решения задачи от Grok3
+For hackathon we choose simple, fast stack to implement, to fit in time. Everything can be built in 1-2 days, without complex training (RAG does not require fine-tuning).
 
-Классическая RAG-архитектуру (Retrieval-Augmented Generation), Scibox: OpenAI-совместимый провайдер: его API может быть использован для embeddings (векторизации) и LLM (генерации ответов). Формат решения - веб-приложение, где оператор видит чат клиента, а ИИ в реальном времени предлагает рекомендации на основе базы знаний (документы, FAQ, инструкции).
-
-## Предлагаемый стек технологий
-
-Для хакатона выбираем простой, быстрый в реализации стек, чтобы уложиться во время. Всё можно собрать за 1-2 дня, без сложного обучения (RAG не требует fine-tuning).
-
-| Компонент | Рекомендация | Почему? |
+| Component | Recommendation | Why? |
 |-----------|--------------|---------|
-| Язык/Фреймворк | Python + LangChain (для RAG-пайплайна) | LangChain упрощает интеграцию embeddings, retrieval и LLM. Легко добавить стриминг и chaining (классификация + NER). |
-| Embeddings (векторизация) | Scibox API (модель: text-embedding-3-small или аналогичная OpenAI-compatible) | Низкая latency, хорошая семантика. Размер embedding: 1536 dims. Альтернатива: HuggingFaceSentenceTransformers, если Scibox недоступен локально. |
-| Разбивка текста (chunking) | RecursiveCharacterTextSplitter (из LangChain) | Разбивает документы на чанки по 500-1000 токенов с overlap 20%, чтобы сохранить контекст. Поддерживает метаданные (e.g., источник документа). |
-| Векторная БД | FAISS (Facebook AI Similarity Search) | Локальная, быстрая, не требует облака. Индексация по cosine similarity. Для scale-up: Pinecone (облачная, с API). Хранит ~10k чанков легко. |
-| LLM для генерации/классификации/NER | Scibox API (модель: GPT-4o-mini или Grok-аналог) | OpenAI-compatible, поддерживает стриминг. Для NER и классификации: chain из LangChain (e.g., create_extraction_chain). |
-| Веб-интерфейс | FastAPI + Vue.js | Быстрое прототипирование чата с real-time обновлениями. WebSocket для стриминга подсказок. |
+| Language/Framework | Python + LangChain (for RAG pipeline) | LangChain simplifies embeddings, retrieval and LLM integration. Easy to add streaming and chaining (classification + NER). |
+| Embeddings (vectorization) | Scibox API (models: text-embedding-3-small or OpenAI-compatible) | Low latency, good semantics. Embedding size: 1536 dims. Alternative: HuggingFaceSentenceTransformers if Scibox is not available locally. |
+| Text chunking | RecursiveCharacterTextSplitter (from LangChain) | Splits documents into chunks of 500-1000 tokens with 20% overlap to preserve context. Supports metadata (e.g., document source). |
+| Vector database | FAISS (Facebook AI Similarity Search) | Local, fast, no cloud dependency. Cosine similarity indexing. For scale-up: Pinecone (cloud, with API). Stores ~10k chunks easily. |
+| LLM for generation/classification/NER | Scibox API (models: GPT-4o-mini or Grok analog) | OpenAI-compatible, supports streaming. For NER and classification: LangChain chain (e.g., create_extraction_chain). |
+| Web interface | FastAPI + Vue.js | Quick chat prototyping with real-time updates. WebSocket for streaming suggestions. |
 | Дополнительно | Pydantic (для валидации), Celery (если нужен background ingestion) | Для обработки больших баз знаний. |
 
-## Шаговый алгоритм (RAG-пайплайн с классификацией и NER)
 
-Алгоритм разделён на этапы: подготовка (ingestion, один раз), обработка запроса (real-time). Добавляем классификацию (e.g., тип тикета: "техническая проблема", "возврат") и NER (извлечение сущностей: имя продукта, версия, email) для точного retrieval. Всё в реальном времени (<2 сек на ответ).
+## Step-by-step algorithm (RAG pipeline with classification and NER)
 
-### 1. Подготовка базы знаний (Ingestion Pipeline)
+### 1. Ingestion Pipeline
 
-- Загрузите документы (PDF, TXT, FAQ) из папки или URL
-- Разбейте на чанки: `splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)`
-- Векторизуйте: `embeddings = SciboxEmbeddings(model="text-embedding-3-small")`; получите векторы для каждого чанка
-- Добавьте метаданные (e.g., `{"source": "FAQ_v1", "category": "billing"}`)
-- Сохраните в FAISS: `vectorstore = FAISS.from_documents(chunks, embeddings)`. Индекс готов к поиску
+- Load documents (PDF, TXT, FAQ) from folder or URL
+- Split into chunks: `splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)`
+- Vectorize: `embeddings = SciboxEmbeddings(model="text-embedding-3-small")`; get vector for each chunk
+- Add metadata (e.g., `{"source": "FAQ_v1", "category": "billing"}`)
+- Save to FAISS: `vectorstore = FAISS.from_documents(chunks, embeddings)`. Index ready to search
 
-### 2. Обработка входящего запроса (Real-time Query Pipeline)
+### 2. Real-time Query Pipeline
 
-**Вход**: Текст запроса клиента (e.g., "Мой iPhone 14 не заряжается после обновления iOS 17")
+**Input**: Text client query (e.g., "My iPhone 14 doesn't charge after iOS 17 update")
 
-**Шаг 2.1: Классификация и NER (используя LLM-chain)**
+**Step 2.1: Classification and NER (using LLM-chain)**
 
-- Prompt для LLM: "Классифицируй запрос: [query]. Категории: technical, billing, return. Извлеки сущности: product, version, issue."
-- Выход: JSON `{"category": "technical", "entities": {"product": "iPhone 14", "version": "iOS 17", "issue": "charging"}}`
-- Это фильтрует retrieval (e.g., искать только в категории "technical")
+- Prompt for LLM: "Classify query: [query]. Categories: technical, billing, return. Extract entities: product, version, issue."
+- Output: JSON `{"category": "technical", "entities": {"product": "iPhone 14", "version": "iOS 17", "issue": "charging"}}`
+- This filters retrieval (e.g., search only in "technical" category)
 
-**Шаг 2.2: Retrieval**
+**Step 2.2: Retrieval**
 
-- Векторизуйте запрос: `query_embedding = embeddings.embed_query(query)`
-- Поиск top-k (k=3-5) похожих чанков: `docs = vectorstore.similarity_search(query, k=5, filter={"category": classification['category']})`
-- Метрика: Cosine similarity (>0.8 для релевантности)
+- Vectorize query: `query_embedding = embeddings.embed_query(query)`
+- Search top-k (k=3-5) similar chunks: `docs = vectorstore.similarity_search(query, k=5, filter={"category": classification['category']})`
+- Metric: Cosine similarity (>0.8 for relevance)
 
-**Шаг 2.3: Генерация рекомендации**
+**Step 2.3: Generation of recommendation**
 
-- Prompt для LLM: "На основе этих документов: {docs}. И сущностей: {entities}. Сгенерируй краткую рекомендацию для оператора: шаг за шагом, с цитатами из базы. Формат: 'Подсказка: [text]. Источник: [doc]'."
-- Стриминг: `response = llm.stream(prompt)` — выводите по токенам для real-time (оператор видит подсказку "на лету")
-- Добавьте fallback: Если релевантность низкая, предложите эскалацию к человеку
+- Prompt for LLM: "Based on these documents: {docs}. And entities: {entities}. Generate a short recommendation for the operator: step by step, with citations from the base. Format: 'Suggestion: [text]. Source: [doc]'."
+- Streaming: `response = llm.stream(prompt)` — output tokens for real-time (operator sees suggestion "on the fly")
+- Add fallback: If relevance is low, suggest escalation to a human
 
-**Выход**: Подсказка для оператора (e.g., "Шаг 1: Проверьте кабель. Из FAQ: 'Для iOS 17 сбросьте настройки'"). Показать в UI рядом с чатом клиента.
+**Output**: Operator suggestion (e.g., "Step 1: Check the cable. From FAQ: 'For iOS 17 reset settings'"). Show in UI next to client chat.
 
-### 3. Деплой и фичи
+### 3. Deployment and features
 
-- Real-time: WebSocket для обновлений
-- Цитирование: Добавьте ссылки на источники в ответе (метаданные из docs)
-- Тестирование: Симулируйте запросы, измерьте latency (цель: <1 сек на retrieval)
+- Real-time: WebSocket for updates
+- Citation: Add links to sources in response (metadata from docs)
+- Testing: Simulate queries, measure latency (goal: <1 sec for retrieval)
 
-Этот алгоритм масштабируем: для больших баз — батчинг ingestion. Продуктовая ценность: Снижает время ответа оператора на 50%, минимизирует ошибки, интегрируется в существующие CRM (e.g., Zendesk API).
-
-# Recommended RAG Framework: LangChain
-
-## OpenAI Compatibility
-Scibox's endpoints (`/v1/chat/completions` and `/v1/embeddings`) are drop-in replacements for OpenAI. LangChain's `ChatOpenAI` and `OpenAIEmbeddings` classes work out-of-the-box—simply set:
-- `base_url="https://llm.t1v.scibox.tech/v1"`
-- `api_key=your_token`
+This algorithm is scalable: for large knowledge bases — batch ingestion. Product value: Reduces operator response time by 50%, minimizes errors, integrates into existing CRM (e.g., Zendesk API).
 
 ## RAG Pipeline Essentials
 
@@ -141,19 +122,6 @@ LangChain's components (chains, retrievers) are callable functions or async, mak
 ### Product Polish
 - Add citations using `with_sources=True` in retrievers to show source KB sections
 - For "escalate to operator" feature: implement simple threshold (e.g., low confidence score → flag)
-
-## Примеры продуктов, решивших похожую задачу
-
-- **DoorDash (DashPass Support Chatbot)**: RAG-чатбот для поддержки курьеров (Dashers). Система сжимает разговоры, ищет релевантные статьи/кейсы в базе, генерирует ответы с guardrails (проверка точности). Результат: Быстрее разрешения тикетов, меньше эскалаций.
-- **LinkedIn (Customer Service Q&A)**: RAG с knowledge graph на основе исторических тикетов. Для запроса строит подграф, retrieves релевантные узлы, генерирует ответы. Сократило время разрешения на 28.6%.
-- **Thomson Reuters (Support Executive Assistant)**: RAG для поиска в внутренних доках, refinement через seq-to-seq модель для структурированных ответов. Чат-интерфейс с цитатами, снижает галлюцинации, ускоряет поддержку.
-- **BotPenguin (RAG-Ready AI Agents)**: Платформа для чатботов поддержки, подключает RAG к докам/FAQ. Генерирует персонализированные ответы в реальном времени по каналам (WhatsApp, web). Идеально для SMB, без обучения.
-- **Commercient (RAG Chat Assistant)**: Специализированный ассистент для B2B-поддержки, retrieves из CRM/доков для точных ответов. Пример: Аналогично Amazon AI, где боты трекают заказы/возвраты из базы без человека.
-
-Ссылки:
-- https://www.evidentlyai.com/blog/rag-examples
-- https://botpenguin.com/blogs/most-useful-rag-application-and-use-cases
-- https://www.commercient.com/transforming-customer-support-with-commercient-rag-chat-assistant/?srsltid=AfmBOoo8SVit7GlYRbvztwPyUpzdHGm0owgSefASaWF-XR-gh82TAqmH
 
 # Retrieval Metrics
 
