@@ -5,14 +5,44 @@ from passlib.context import CryptContext
 
 from src.models import User
 
-password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+
+def _truncate_password(password: str) -> bytes:
+    """Truncate password to 72 bytes for bcrypt, handling UTF-8 properly."""
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) <= 72:
+        return password_bytes
+    
+    # Truncate to 72 bytes
+    password_bytes = password_bytes[:72]
+    
+    # Ensure we don't break UTF-8 encoding by removing bytes until valid
+    while len(password_bytes) > 0:
+        try:
+            password_bytes.decode('utf-8')
+            return password_bytes
+        except UnicodeDecodeError:
+            password_bytes = password_bytes[:-1]
+    
+    return b""
 
 
 def get_hashed_password(password: str) -> str:
+    # Truncate password to 72 characters (not bytes) for bcrypt compatibility
+    # Using character truncation is simpler and avoids UTF-8 issues
+    if len(password) > 72:
+        password = password[:72]
     return password_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    # Truncate password to 72 characters (not bytes) for bcrypt compatibility
+    if len(plain_password) > 72:
+        plain_password = plain_password[:72]
     return password_context.verify(plain_password, hashed_password)
 
 

@@ -1,6 +1,8 @@
+import faiss
 import json
 import os
 import pandas as pd
+from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_gigachat import GigaChat
@@ -15,7 +17,7 @@ from src.config import settings
 # 2. faiss_index.bin - The pre-computed FAISS index from your notebook.
 
 DATA_DIR = "data"
-DATASET_PATH = os.path.join(DATA_DIR, "faqs_dataset.csv")
+DATASET_PATH = os.path.join(DATA_DIR, "Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv")
 FAISS_INDEX_PATH = os.path.join(DATA_DIR, "faiss_index.bin")
 
 class Hint(BaseModel):
@@ -41,14 +43,21 @@ def load_rag_components():
 
     # Load the dataset to provide context metadata
     df = pd.read_csv(DATASET_PATH)
-    documents = [Document(page_content=row['prompt'], metadata={'response': row['response']}) for _, row in df.iterrows()]
-
-    # Load the pre-computed FAISS index
-    vectorstore = FAISS.load_local(
-        folder_path=DATA_DIR, 
-        embeddings=embedding_model, 
-        index_name="faiss_index",
-        allow_dangerous_deserialization=True
+    texts = df['instruction'].tolist()
+    metadatas = [{'response': row['response']} for _, row in df.iterrows()]
+    
+    # Load the raw FAISS index
+    index = faiss.read_index(FAISS_INDEX_PATH)
+    
+    # Create FAISS vectorstore from existing index
+    vectorstore = FAISS(
+        embedding_function=embedding_model.embed_query,
+        index=index,
+        docstore=InMemoryDocstore({
+            str(i): Document(page_content=text, metadata=meta)
+            for i, (text, meta) in enumerate(zip(texts, metadatas))
+        }),
+        index_to_docstore_id={i: str(i) for i in range(len(texts))}
     )
     retriever = vectorstore.as_retriever()
 

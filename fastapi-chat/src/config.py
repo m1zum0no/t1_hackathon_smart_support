@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class GlobalSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file="src/.env", env_file_encoding="utf-8")
 
     ENVIRONMENT: str = "development"
     # app settings
@@ -56,6 +56,9 @@ class GlobalSettings(BaseSettings):
 
     # static files
     STATIC_HOST: str = "http://localhost:8001"
+    
+    # GigaChat
+    GIGACHAT_CLIENT_SECRET: str = "bee83aea-bac4-4adf-bdf6-be1911c06c06"
 
 
 class TestSettings(GlobalSettings):

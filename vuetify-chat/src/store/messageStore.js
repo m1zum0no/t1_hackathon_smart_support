@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import axios from "@/api/axios";
 import { useUserStore } from "@/store/userStore";
 import { useWebsocketStore } from "@/store/websocketStore";
-import { getMessages, getOlderMessages, getHint } from "@/api/messages";
+import { getHint } from "@/api/messages";
 
 export const useMessageStore = defineStore("messages", {
   state: () => {

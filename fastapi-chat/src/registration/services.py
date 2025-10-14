@@ -27,7 +27,22 @@ async def get_user_by_email_or_username(db_session: AsyncSession, *, email: str,
 
 
 async def create_user(db_session: AsyncSession, *, user_schema: UserRegisterSchema) -> User:
-    hashed_password = get_hashed_password(user_schema.password)
+    # Truncate password to 72 bytes before hashing (bcrypt limit)
+    password_bytes = user_schema.password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+        while len(password_bytes) > 0:
+            try:
+                truncated_password = password_bytes.decode('utf-8')
+                break
+            except UnicodeDecodeError:
+                password_bytes = password_bytes[:-1]
+        else:
+            truncated_password = user_schema.password[:72]  # Fallback
+    else:
+        truncated_password = user_schema.password
+    
+    hashed_password = get_hashed_password(truncated_password)
     new_user = User(
         username=user_schema.username.lower(),
         email=user_schema.email.lower(),
