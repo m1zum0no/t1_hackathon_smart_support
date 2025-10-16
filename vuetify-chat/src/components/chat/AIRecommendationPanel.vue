@@ -160,18 +160,17 @@ const copyRecommendation = async () => {
 };
 
 const getConfidenceColor = (confidence) => {
-  if (confidence === 'high') return 'success';
-  if (confidence === 'low') return 'error';
-  return 'warning';
+  // confidence is now a number 0-100
+  const confValue = typeof confidence === 'number' ? confidence : parseInt(confidence) || 0;
+  if (confValue >= 80) return 'success';
+  if (confValue >= 50) return 'warning';
+  return 'error';
 };
 
 const getConfidencePercentage = (confidence) => {
-  const confidenceMap = {
-    'high': '80-100%',
-    'medium': '50-79%',
-    'low': '0-49%'
-  };
-  return confidenceMap[confidence] || confidence;
+  // confidence is now a number 0-100, just add % sign
+  const confValue = typeof confidence === 'number' ? confidence : parseInt(confidence) || 0;
+  return `${confValue}%`;
 };
 </script>
 

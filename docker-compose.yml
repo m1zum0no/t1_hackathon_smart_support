@@ -63,21 +63,6 @@ services:
         condition: service_healthy
     networks:
       - smart-support-net
-    command: >
-      sh -c "
-      echo 'Waiting for database...';
-      sleep 5;
-      echo 'Running database migrations...';
-      alembic upgrade head;
-      if [ ! -f /opt/chat/data/faiss_index_bge_m3.bin ]; then
-        echo 'Initializing FAISS index from smart_support.xlsx...';
-        python scripts/init_faiss_index.py || echo 'Warning: FAISS index initialization failed. Will retry on first request.';
-      else
-        echo 'FAISS index already exists, skipping initialization.';
-      fi;
-      echo 'Starting FastAPI server...';
-      uvicorn src.main:app --host=0.0.0.0 --port=8001 --reload
-      "
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/docs"]
       interval: 30s

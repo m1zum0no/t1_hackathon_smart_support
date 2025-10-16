@@ -43,3 +43,9 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY . .
+
+# Make entrypoint script executable
+RUN chmod +x /opt/chat/docker-entrypoint.sh
+
+# Set entrypoint
+ENTRYPOINT ["/bin/bash", "/opt/chat/docker-entrypoint.sh"]

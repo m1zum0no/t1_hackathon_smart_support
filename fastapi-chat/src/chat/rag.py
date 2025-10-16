@@ -23,7 +23,7 @@ L1_CACHE_PATH = os.path.join(DATA_DIR, "l1_cache.json")
 
 class Hint(BaseModel):
     response: str
-    confidence: str
+    confidence: int  # 0-100
     category: str = ""
     subcategory: str = ""
     template: str = ""
@@ -412,8 +412,8 @@ def generate_hint(question: str) -> Hint:
     try:
         if client is None:
             return Hint(
-                response="Система временно недоступна. Пожалуйста, попробуйте позже.",
-                confidence="low",
+                response="Произошла ошибка при обработке запроса. Пожалуйста, попробуйте позже.",
+                confidence=0,
                 category="Ошибка",
                 subcategory="Системная ошибка",
                 route="Error",
@@ -428,7 +428,7 @@ def generate_hint(question: str) -> Hint:
             logger.info(f"L1 exact match found for question: {question[:50]}...")
             return Hint(
                 response=l1_result['template'],
-                confidence="high",
+                confidence=100,  # Exact match = 100% confidence
                 category=l1_result.get('category', ''),
                 subcategory=l1_result.get('subcategory', ''),
                 template=l1_result['template'],
@@ -444,7 +444,7 @@ def generate_hint(question: str) -> Hint:
             processing_time = int((time.time() - start_time) * 1000)
             return Hint(
                 response="К сожалению, не удалось найти подходящий ответ. Пожалуйста, уточните ваш вопрос.",
-                confidence="low",
+                confidence=0,
                 category="Неизвестно",
                 subcategory="Неизвестно",
                 route="L2 Семантический поиск",
@@ -456,10 +456,11 @@ def generate_hint(question: str) -> Hint:
         top_similarity = candidates[0].get('similarity', 0)
         if top_similarity >= 0.95:  # Very high confidence threshold
             processing_time = int((time.time() - start_time) * 1000)
-            logger.info(f"L2 high confidence match (similarity: {top_similarity:.3f})")
+            confidence_score = int(top_similarity * 100)  # Convert to 0-100
+            logger.info(f"L2 high confidence match (similarity: {top_similarity:.3f}, confidence: {confidence_score}%)")
             return Hint(
                 response=candidates[0]['template'],
-                confidence="high",
+                confidence=confidence_score,
                 category=candidates[0].get('category', ''),
                 subcategory=candidates[0].get('subcategory', ''),
                 template=candidates[0]['template'],
@@ -475,19 +476,14 @@ def generate_hint(question: str) -> Hint:
         
         processing_time = int((time.time() - start_time) * 1000)
         
-        # Determine confidence level based on LLM confidence and similarity
-        if llm_confidence >= 0.8:
-            confidence_level = "high"
-        elif llm_confidence >= 0.5:
-            confidence_level = "medium"
-        else:
-            confidence_level = "low"
+        # Convert LLM confidence to 0-100 scale
+        confidence_score = int(llm_confidence * 100)
         
-        logger.info(f"L3 LLM rerank completed (confidence: {llm_confidence:.2f}, time: {processing_time}ms)")
+        logger.info(f"L3 LLM rerank completed (confidence: {confidence_score}%, time: {processing_time}ms)")
         
         return Hint(
             response=selected_candidate['template'],
-            confidence=confidence_level,
+            confidence=confidence_score,
             category=selected_candidate.get('category', ''),
             subcategory=selected_candidate.get('subcategory', ''),
             template=selected_candidate['template'],
@@ -501,7 +497,7 @@ def generate_hint(question: str) -> Hint:
         logger.error(f"Error generating hint: {e}", exc_info=True)
         return Hint(
             response=f"Произошла ошибка при обработке запроса: {str(e)}",
-            confidence="low",
+            confidence=0,
             category="Ошибка",
             subcategory="Системная ошибка",
             template="",
