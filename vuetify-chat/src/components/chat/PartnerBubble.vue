@@ -64,54 +64,45 @@ onMounted(() => {
 
 .bubble {
   position: relative;
-  line-height: 24px;
-  max-width: 300px;
+  line-height: 1.5;
+  max-width: 320px;
   width: fit-content;
-  background: #f5f5f5;
-  border-radius: 25px;
+  background: var(--section-card-background);
+  border-radius: 12px 12px 12px 2px;
   text-align: left;
-  color: #000;
-  padding: 6px 12px;
+  color: var(--text);
+  padding: 10px 14px;
   margin-bottom: 0;
   cursor: pointer;
   transition: all 0.2s ease;
+  border: 1px solid var(--section-card-wrapper);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
 }
 
 .bubble:hover {
-  background: #eeeeee;
+  background: var(--hover-bg);
+  border-color: var(--accent-blue-light);
 }
 
 .bubble-selected {
-  background: #fff9e6 !important;
+  background: #e3f2fd !important;
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 2px 4px rgba(74, 144, 226, 0.15);
 }
 
 .bubble-bottom-left:before {
-  content: "";
-  width: 0px;
-  height: 0px;
-  position: absolute;
-  border-left: 20px solid #f5f5f5;
-  border-right: 10px solid transparent;
-  border-top: 10px solid #f5f5f5;
-  border-bottom: 15px solid transparent;
-  left: 8px;
-  bottom: -12px;
-  transform: rotate(10deg);
-  z-index: -1;
-}
-
-.bubble-selected.bubble-bottom-left:before {
-  border-left-color: #fff9e6;
-  border-top-color: #fff9e6;
+  display: none; /* Remove decorative tail for cleaner look */
 }
 
 .lightbulb-btn {
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  opacity: 0.6;
+  transition: all 0.2s;
   flex-shrink: 0;
 }
 
 .lightbulb-btn:hover {
   opacity: 1;
+  transform: scale(1.1);
 }
 </style>

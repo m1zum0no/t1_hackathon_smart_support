@@ -100,58 +100,64 @@ const switchTheme = async () => {
 </script>
 
 <style scoped>
+#icon-search,
+#icon-chats,
+#icon-settings {
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
 #icon-search:hover,
 #icon-chats:hover,
 #icon-settings:hover {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: var(--accent-blue) !important;
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .searchTab {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: var(--accent-blue) !important;
+  opacity: 1;
   animation: rotate 0.5s;
 }
 
 .chatsTab {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: var(--accent-blue) !important;
+  opacity: 1;
   animation: beat 0.5s;
 }
 
-
 .settings-items:hover {
-  color: rgb(var(--v-theme-select));
+  color: var(--accent-blue);
   cursor: pointer;
 }
 
-@keyframes beat {
+/* Unread badge styling */
+:deep(.bg-pink-lighten-3) {
+  background-color: var(--accent-blue) !important;
+  color: var(--navy-text) !important;
+  font-weight: 600;
+}
 
-  15%,
-  85% {
+@keyframes beat {
+  15%, 85% {
+    transform: scale(1.05);
+  }
+  25%, 75% {
     transform: scale(1.1);
   }
-
-  25%,
-  75% {
-    transform: scale(1.2);
-  }
-
   50% {
-    transform: scale(1.3);
+    transform: scale(1.15);
   }
 }
 
-
 @keyframes rotate {
-
-  15%,
-  85% {
+  15%, 85% {
     transform: rotate(-0.2turn);
   }
-
-  25%,
-  75% {
+  25%, 75% {
     transform: rotate(-0.4turn);
   }
-
   50% {
     transform: rotate(-0.6turn);
   }

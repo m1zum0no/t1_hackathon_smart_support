@@ -5,13 +5,13 @@
     for large view 700 - 60 (header) - 90 (send button) -->
     <div id="container" ref="chatWindow" :style="compactView ? { 'height': '450px' } : { 'height': '550px' }">
       <div v-for="(message, index) in currentChatMessages" :key="message.message_guid">
-        <div v-show="showDateBreak(index)" class="text-center text-black my-2 font-weight-medium">
+        <div v-show="showDateBreak(index)" class="text-center my-3 font-weight-medium date-divider">
           {{ formatDate(message.created_at) }}
-          <v-divider class="mt-2 mx-auto border-opacity-75" width="200px" color="primary" thickness="2px"></v-divider>
+          <v-divider class="mt-2 mx-auto border-opacity-50" width="200px" color="secondary" thickness="1px"></v-divider>
         </div>
 
-        <div v-show="earliestUnreadMessageIndex === index" class="bg-items text-center py-2">
-          <p class="text-primary font-weight-medium">Unread messages</p>
+        <div v-show="earliestUnreadMessageIndex === index" class="unread-divider text-center py-2">
+          <p class="text-accent font-weight-medium">Unread messages</p>
         </div>
         <SpeakerBubble v-if="message.user_guid === currentUser.userGUID" class="ml-auto mr-2">
           <v-list-item class="py-2 my-3 text-left">
@@ -39,8 +39,7 @@
           </v-list-item>
         </PartnerBubble>
       </div>
-      <v-btn v-if="moreMessagesToLoad" @click="loadMoreMessages" class="mt-3 mx-auto" style="text-transform: none">Load
-        More</v-btn>
+      <v-btn v-if="moreMessagesToLoad" @click="loadMoreMessages" class="mt-3 mx-auto load-more-btn" variant="outlined" color="primary">Load More</v-btn>
     </div>
     <!-- BOTTOM BUTTON FOR SCROLLING / DISPLAYING UNREAD MESSAGES COUNT -->
     <div style="position: absolute;" :style="compactView ? {top: '85%', right: '7%'} : {top: '88%', right: '5%'}">
@@ -155,28 +154,49 @@ onMounted(() => {
 
 <style scoped>
 #container {
-  /* height: 450px; */
   overflow: auto;
   display: flex;
   flex-direction: column-reverse;
+  background-color: var(--background);
+}
+
+.date-divider {
+  color: var(--greyed-out-text);
+  font-size: 13px;
+  letter-spacing: 0.25px;
+}
+
+.unread-divider {
+  background-color: var(--section-card-wrapper);
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.load-more-btn {
+  border-color: var(--greyed-out-text) !important;
+  color: var(--text) !important;
+}
+
+.load-more-btn:hover {
+  background-color: var(--hover-bg) !important;
+  border-color: var(--accent-blue) !important;
 }
 
 /* Styling the scrollbar */
 #container::-webkit-scrollbar {
-  width: 19px;
-  /* Width of the entire scrollbar */
+  width: 8px;
 }
 
 #container::-webkit-scrollbar-track {
-  background-color: rgb(var(--v-theme-track));
-  /* Color of the track (the area behind the thumb) */
-
+  background-color: var(--background);
 }
 
 #container::-webkit-scrollbar-thumb {
-  background-color: rgb(var(--v-theme-scroll));
-  /* Color of the thumb (the draggable part) */
-  border-radius: 6px;
-  /* Roundness of the thumb */
+  background-color: var(--greyed-out-text);
+  border-radius: 4px;
+}
+
+#container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--navy);
 }
 </style>

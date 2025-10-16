@@ -7,32 +7,22 @@
 <script setup></script>
 
 <style scoped>
-
-
 .bubble {
   position: relative;
-  line-height: 24px;
-  max-width: 300px;
+  line-height: 1.5;
+  max-width: 320px;
   width: fit-content;
-  background: #B9F6CA;
-  border-radius: 25px;
+  background: var(--accent-blue);
+  border-radius: 12px 12px 2px 12px;
   text-align: left;
-  color: #000;
-  padding: 6px 12px;
+  color: var(--navy-text);
+  padding: 10px 14px;
   margin-bottom: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
 }
 
 .bubble-bottom-right:before {
-  content: "";
-  width: 0px;
-  height: 0px;
-  position: absolute;
-  border-left: 24px solid transparent; /* Controls the left side of the triangle */
-  border-right: 20px solid transparent; /* Controls the right side of the triangle (transparent) */
-  border-top: 12px solid transparent; /* Controls the top side of the triangle */
-  border-bottom: 20px solid #B9F6CA; /* Controls the bottom side of the triangle (transparent) */
-  right: 10px; /* Position from the left edge of the bubble */
-  bottom: -10px; /* Position from the bottom edge of the bubble */
-  transform: rotate(-115deg);
+  display: none; /* Remove decorative tail for cleaner look */
 }
 </style>

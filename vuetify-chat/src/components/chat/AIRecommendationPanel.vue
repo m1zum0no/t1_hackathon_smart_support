@@ -1,8 +1,8 @@
 <template>
   <v-card class="ai-panel rounded-0 rounded-e-lg" elevation="2">
     <v-card-title class="panel-header">
-      <v-icon color="yellow-darken-2" class="mr-2">mdi-lightbulb-on</v-icon>
-      AI Recommendation
+      <v-icon color="white" class="mr-2" size="small">mdi-lightbulb-on</v-icon>
+      Knowledge Base Assistant
     </v-card-title>
     
     <v-divider></v-divider>
@@ -249,24 +249,27 @@ const getConfidencePercentage = (confidence) => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #fafafa;
+  background-color: var(--section-card-wrapper);
 }
 
 .panel-header {
-  background: linear-gradient(135deg, #fffbea 0%, #fff9e6 100%);
-  border-bottom: 3px solid #f9a825;
+  background: var(--navy);
+  color: var(--navy-text);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   font-weight: 600;
-  font-size: 1.1rem;
-  padding: 12px 16px;
+  font-size: 1rem;
+  padding: 16px;
+  letter-spacing: 0.25px;
 }
 
 .query-card {
-  background-color: #ffffff;
+  background-color: var(--section-card-background);
   box-shadow: none !important;
+  border-bottom: 1px solid var(--section-card-wrapper);
 }
 
 .query-section {
-  padding: 12px !important;
+  padding: 16px !important;
 }
 
 .query-input-row {
@@ -274,14 +277,14 @@ const getConfidencePercentage = (confidence) => {
 }
 
 .query-textarea {
-  font-size: 0.9rem;
+  font-size: 14px;
   flex: 1;
 }
 
 .hint-content {
   overflow-y: auto;
   max-height: calc(100vh - 400px);
-  padding: 12px 16px !important;
+  padding: 16px !important;
 }
 
 .empty-state {
@@ -291,26 +294,29 @@ const getConfidencePercentage = (confidence) => {
 }
 
 .hint-response {
-  font-size: 0.95rem;
+  font-size: 14px;
   line-height: 1.6;
-  color: #333;
+  color: var(--text);
 }
 
 .recommendation-text {
   white-space: pre-wrap;
-  background-color: #f9f9f9;
-  padding: 12px;
+  background-color: var(--section-card-background);
+  padding: 14px;
   border-radius: 8px;
-  border-left: 3px solid #2196F3;
+  border: 1px solid var(--section-card-wrapper);
+  border-left: 3px solid var(--accent-blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .hint-template {
-  font-size: 0.9rem;
-  color: #666;
-  background-color: rgba(0, 0, 0, 0.03);
-  padding: 12px;
+  font-size: 14px;
+  color: var(--greyed-out-text);
+  background-color: var(--section-card-background);
+  padding: 14px;
   border-radius: 8px;
-  border-left: 3px solid #9c27b0;
+  border: 1px solid var(--section-card-wrapper);
+  border-left: 3px solid var(--accent-blue-light);
 }
 
 .hint-template p {
@@ -332,10 +338,30 @@ const getConfidencePercentage = (confidence) => {
 
 .alternative-text {
   white-space: pre-wrap;
-  background-color: #f5f5f5;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  background-color: var(--section-card-background);
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
   line-height: 1.5;
+  border: 1px solid var(--section-card-wrapper);
+}
+
+/* Chip styling override */
+:deep(.v-chip) {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Expansion panel styling */
+:deep(.v-expansion-panel) {
+  background-color: var(--section-card-background) !important;
+  border: 1px solid var(--section-card-wrapper);
+  border-radius: 6px !important;
+  margin-bottom: 8px;
+}
+
+:deep(.v-expansion-panel-title) {
+  font-size: 13px;
+  color: var(--text);
 }
 </style>

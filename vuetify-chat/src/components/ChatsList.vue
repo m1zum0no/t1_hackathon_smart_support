@@ -97,30 +97,44 @@ onMounted (async () => {
 
 /* Styling the scrollbar */
 #chatList::-webkit-scrollbar {
-  width: 13px;
-  /* Width of the entire scrollbar */
+  width: 8px;
 }
 
-
 #chatList::-webkit-scrollbar-track {
-  background-color: rgb(var(--v-theme-track));
-  /* Color of the track (the area behind the thumb) */
-
+  background-color: var(--section-card-wrapper);
 }
 
 #chatList::-webkit-scrollbar-thumb {
-  background-color: rgb(var(--v-theme-primary));
-  /* Color of the thumb (the draggable part) */
-  border-radius: 6px;
-  /* Roundness of the thumb */
+  background-color: var(--greyed-out-text);
+  border-radius: 4px;
+}
+
+#chatList::-webkit-scrollbar-thumb:hover {
+  background-color: var(--navy);
+}
+
+.list-item {
+  transition: all 0.2s ease;
 }
 
 .list-item:hover {
-  background-color: rgb(var(--v-theme-select));
-  border-radius: 6px;
+  background-color: var(--hover-bg);
+  border-radius: 8px;
 }
-/* .v-list-item:hover{
-  opacity: 0;
-} */
 
+:deep(.v-list-item-title) {
+  font-size: 14px;
+  color: var(--text);
+}
+
+:deep(.bg-select) {
+  background-color: var(--accent-blue) !important;
+  color: var(--navy-text) !important;
+}
+
+:deep(.bg-panel) {
+  background-color: var(--accent-blue) !important;
+  color: var(--navy-text) !important;
+  font-size: 12px;
+}
 </style>

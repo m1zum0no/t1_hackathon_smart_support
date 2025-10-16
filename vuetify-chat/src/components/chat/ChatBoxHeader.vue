@@ -1,14 +1,12 @@
 <template>
-  <v-card class="rounded-0" color="panel" height="60px" :class="compactView ? 'rounded-te-0' : 'rounded-te-lg'">
+  <v-card class="rounded-0 chat-header" color="panel" height="60px" :class="compactView ? 'rounded-te-0' : 'rounded-te-lg'">
 
-    <v-card-title style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            ">
+    <v-card-title class="header-content">
 
       <div class="d-flex align-center">
-        <img :src="ArrowBackImageURL" style="height: 30px; cursor: pointer;" class="mr-3" :class="currentTheme === 'teal'? 'filter-teal' : 'filter-midnight'" @click="goBack" />
+        <v-btn icon variant="text" @click="goBack" class="mr-2" size="small">
+          <v-icon color="white">mdi-arrow-left</v-icon>
+        </v-btn>
         <img v-if="currentFriendImage && !currentFriendImageError" :src="currentFriendImage" class="profile-image"
           :alt="`${currentFriendFirstName}_image`" style="cursor: pointer;" @error="handleImageError()"
           @click="showPhoto = true" />
@@ -17,16 +15,16 @@
         <img v-else :src="defaultPhotoURL" alt="defaultUserImage" class="profile-image">
         <StatusCircle :friendStatus="friendStatuses[currentFriendGUID]" />
         <!-- Typing status -->
-        <span class="ml-1">{{ currentFriendFirstName }}</span>
-        <v-row v-show="friendTyping" class="mb-1 mt-1 ml-1 mr-3" :class="currentTheme === 'teal'? 'filter-teal' : 'filter-midnight'">
+        <span class="ml-2 user-name">{{ currentFriendFirstName }}</span>
+        <span v-show="friendTyping" class="typing-indicator ml-2">
             is typing
-            <ThreeDots class="ml-n3" />
-        </v-row>
+            <ThreeDots class="ml-n1" />
+        </span>
       </div>
 
       <v-menu :close-on-content-click="false">
         <template v-slot:activator="{ props }">
-          <v-icon v-bind="props" size="large" color="primary">mdi-dots-vertical
+          <v-icon v-bind="props" size="large" color="white">mdi-dots-vertical
           </v-icon>
         </template>
         <v-list bg-color="submenu">
@@ -101,12 +99,29 @@ const deleteChat = async (chatGUID) => {
 </script>
 
 <style scoped>
-.filter-teal {
-  filter: invert(35%) sepia(21%) saturate(3419%) hue-rotate(145deg) brightness(95%) contrast(102%);
+.chat-header {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
-.filter-midnight {
-  filter: brightness(0) saturate(100%) invert(85%) sepia(73%) saturate(41%) hue-rotate(352deg) brightness(113%) contrast(93%);
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px !important;
+}
+
+.user-name {
+  color: var(--navy-text);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.25px;
+}
+
+.typing-indicator {
+  color: var(--navy-text);
+  font-size: 13px;
+  opacity: 0.9;
+  font-style: italic;
 }
 
 .image-enlarged-large {
@@ -124,9 +139,5 @@ const deleteChat = async (chatGUID) => {
   position: absolute;
   bottom: 0;
   left: -25%;
-}
-
-.typing-status {
-  font-size: 0.8rem;
 }
 </style>

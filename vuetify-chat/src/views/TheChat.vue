@@ -87,13 +87,13 @@ import { useTheme } from 'vuetify'
 const alertColor = computed(() => {
   switch (systemMessage.value.type) {
     case 'error':
-      return 'pink-accent-2';
+      return 'error';
     case 'success':
-      return 'green-accent-1';
+      return 'success';
     case 'info':
-      return 'orange-lighten-4'
+      return 'info'
     default:
-      return 'indigo-lighten-2';
+      return 'primary';
   }
 });
 const alertIcon = computed(() => {
@@ -176,6 +176,10 @@ document.addEventListener("visibilitychange", () => {
 compactView.value = window.innerWidth < 700 ? true : false;
 
 onMounted(async () => {
+  // Set theme to banking by default if not already set
+  if (!currentTheme.value || currentTheme.value === 'teal') {
+    currentTheme.value = 'banking';
+  }
   theme.global.name.value = currentTheme.value;
 
   await chatStore.getDirectChats(currentUser.value.userGUID);
@@ -216,15 +220,16 @@ onUnmounted(() => {
 }
 
 .collapse-btn {
-  background-color: rgb(var(--v-theme-items)) !important;
-  color: rgb(var(--v-theme-primary)) !important;
-  border: 1px solid rgb(var(--v-theme-items)) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  background-color: var(--section-card-background) !important;
+  color: var(--navy) !important;
+  border: 1px solid var(--section-card-wrapper) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 .collapse-btn:hover {
-  background-color: rgb(var(--v-theme-panel)) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  background-color: var(--accent-blue) !important;
+  color: var(--navy-text) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 .chat-panel-height {
