@@ -31,7 +31,7 @@
       <!-- LEFT PANEL CHATS END -->
 
       <!-- COLLAPSE BUTTON -->
-      <div v-if="!compactView && isChat && chatSelected" class="collapse-button-container" :style="{ left: leftPanelCollapsed ? '0' : 'calc(25% - 20px)' }">
+      <div v-if="!compactView && isChat && chatSelected" class="collapse-button-container" :style="{ left: leftPanelCollapsed ? '0' : 'calc(25% - 16px)' }">
         <v-btn
           @click="toggleLeftPanel"
           icon
@@ -216,13 +216,14 @@ onUnmounted(() => {
 }
 
 .collapse-btn {
-  background-color: rgb(var(--v-theme-success)) !important;
-  color: white !important;
+  background-color: rgb(var(--v-theme-items)) !important;
+  color: rgb(var(--v-theme-primary)) !important;
+  border: 1px solid rgb(var(--v-theme-items)) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 .collapse-btn:hover {
-  background-color: rgb(var(--v-theme-success-darken-1)) !important;
+  background-color: rgb(var(--v-theme-panel)) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
 }
 

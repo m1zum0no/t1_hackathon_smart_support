@@ -355,7 +355,7 @@ def l3_llm_rerank(question: str, candidates: List[Dict[str, Any]]) -> Tuple[Dict
         candidates_text += f"Категория: {candidate['category']} / {candidate['subcategory']}\n"
         candidates_text += f"Релевантность (семантическая): {candidate.get('similarity', 0):.2f}"
     
-    prompt = f"""Ты — эксперт по подбору наиболее релевантного ответа из базы знаний.
+    prompt = f"""Ты — эксперт по подбору наиболее релевантного ответа из базы знаний банка.
 
 Вопрос клиента:
 {question}
@@ -369,6 +369,7 @@ def l3_llm_rerank(question: str, candidates: List[Dict[str, Any]]) -> Tuple[Dict
 
 ВАЖНО:
 - Оценивай ТОЧНОЕ соответствие вопросу клиента
+- Если вопрос НЕ связан с банковскими услугами (например, приветствия, общие вопросы), ставь ОЧЕНЬ НИЗКУЮ оценку (0-20)
 - Если несколько кандидатов похожи по релевантности, укажи близкие оценки
 - Не генерируй новый ответ, оценивай только предложенных кандидатов
 
@@ -419,6 +420,12 @@ def l3_llm_rerank(question: str, candidates: List[Dict[str, Any]]) -> Tuple[Dict
         
         if not ranked_results:
             logger.warning("No valid rankings extracted, returning None")
+            return None, 0.0, []
+        
+        # Check if best candidate has extremely low confidence (< 30%)
+        best_confidence = ranked_results[0][1]
+        if best_confidence < 0.30:
+            logger.warning(f"Best candidate has very low confidence ({best_confidence:.2f}), returning None")
             return None, 0.0, []
         
         # Best candidate is first in ranked results
