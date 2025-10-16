@@ -3,42 +3,9 @@
     <ChatBoxHeader />
     <MainChat />
     
-    <v-dialog width="500" v-model="showAttachmentPreview" :close-on-content-click="false">
-      <v-card class="rounded-lg">
-        <v-icon icon="mdi-close" class="ml-auto mr-2 mt-2 mb-n3" color="black" @click="closePreview" />
-        <v-card-title>
-          Attachment Preview
-        </v-card-title>
-
-        <v-img v-if="isPreviewImage" :src="previewImageUrl" height="500" />
-        <p v-else class="text-center">
-          <v-icon icon="mdi-file-pdf-box my-auto" size="x-large" color="teal"></v-icon>
-        </p>
-        <v-card-text>
-          {{ previewFileName }}
-        </v-card-text>
-        <v-card-text>
-          {{ previewFileSize }} Mb
-        </v-card-text>
-        <v-btn color="primary" class="my-5 mx-2">Send</v-btn>
-      </v-card>
-
-    </v-dialog>
-    
-    <!-- EMOJI PICKER - positioned above input -->
-    <div class="emoji-picker-container">
-      <EmojiPicker v-if="!compactView" v-show="showEmoji" @select="onSelectEmoji" />
-    </div>
-    
     <!-- SEND BUTTON COMPONENT START -->
     <v-card class="rounded-0 rounded-be-lg input-container">
       <v-row align="end" justify="center" no-gutters class="input-row">
-        <p class="ml-2 mr-n2 button-wrapper">
-          <v-file-input class="file-input text-icons font-weight-bold" @update:model-value="handleFileUpload" />
-        </p>
-
-        <v-icon v-if="!compactView" class="ml-2 mr-2 button-wrapper" size="x-large" color="icons" :class="{ activeEmoji: showEmoji }"
-          @click="toggleEmoji">mdi-emoticon-happy-outline</v-icon>
         <!-- @keydown.enter.exact.prevent -> Prevents next line on clicking ENTER -->
         <!-- We should be able to add a new line by pressing SHIFT+ENTER -->
         <!-- @keydown.enter -->
@@ -49,9 +16,6 @@
         <v-btn @click="sendMessage" icon="mdi-send" variant="plain" class="ml-0 button-wrapper"
           :color="messageToSend === '' ? 'blue-grey-lighten-2' : 'send'" size="x-large"
           style="font-size: 30px; transform: rotate(-5deg);">
-        </v-btn>
-        <v-btn @click="console.log('Lightbulb button clicked'); requestHint();" icon="mdi-lightbulb-on-outline" variant="plain" class="ml-0 button-wrapper"
-          color="yellow-darken-2" size="x-large">
         </v-btn>
       </v-row>
 
@@ -64,11 +28,6 @@
 <script setup>
 import { ref, nextTick } from "vue";
 import { storeToRefs } from "pinia";
-
-
-
-import EmojiPicker from 'vue3-emoji-picker'
-import 'vue3-emoji-picker/css'
 
 import MainChat from "@/components/chat/MainChat.vue";
 import ChatBoxHeader from "@/components/chat/ChatBoxHeader.vue";
@@ -97,80 +56,6 @@ const { currentChatMessages, loadingMessages } = storeToRefs(messageStore);
 const messageToSend = ref("");
 const textInput = ref(null);
 
-const showAttachmentPreview = ref(false);
-const previewFileName = ref("");
-const previewFileSize = ref(null);
-const previewImageUrl = ref("");
-const isPreviewImage = ref(false);
-
-const showEmoji = ref(false);
-
-const toggleEmoji = () => {
-  if (!showEmoji.value) {
-    textInput.value.focus()
-  }
-  showEmoji.value = !showEmoji.value
-}
-
-
-const closePreview = () => {
-  isPreviewImage.value = false;
-  showAttachmentPreview.value = false;
-}
-
-const createPreviewData = (file) => {
-  file = file[0]
-  console.log("FILE", file);
-  if (file.type === "image/jpeg") {
-
-    const reader = new FileReader();
-
-    reader.onload = e => {
-      previewImageUrl.value = e.target.result;
-    };
-    isPreviewImage.value = true;
-    reader.readAsDataURL(file);
-  }
-  previewFileSize.value = file.size / 1000000
-  previewFileName.value = file.name
-
-}
-
-
-const handleFileUpload = (file) => {
-  if (!file) {
-    return;
-  }
-  createPreviewData(file);
-  console.log("File Uploaded", file);
-  showAttachmentPreview.value = true;
-}
-
-const onSelectEmoji = (emoji) => {
-  const cursorPosition = textInput.value.selectionStart;
-  // Split the existing message into two parts
-  const start = messageToSend.value.slice(0, cursorPosition);
-  const end = messageToSend.value.slice(cursorPosition);
-
-  // Insert the selected emoji in between
-  messageToSend.value = start + emoji.i + end;
-
-  // must wait for the DOM update
-  nextTick(() => {
-    // Update the cursor position to be at the end of the inserted emoji
-    textInput.value.selectionStart = cursorPosition + emoji.i.length;
-    textInput.value.selectionEnd = cursorPosition + emoji.i.length;
-    // Place focus at the updated cursor position
-    textInput.value.focus();
-  })
-}
-const requestHint = async () => {
-  if (messageToSend.value.trim() === "") {
-    return; // Don't send empty messages
-  }
-  await messageStore.getHint(messageToSend.value);
-};
-
 const sendMessage = async () => {
   if (messageToSend.value.trim() === "") {
     return; // Don't send empty messages
@@ -183,8 +68,6 @@ const sendMessage = async () => {
     if (success) {
       // make input not editable before receive own message via websocket
       inputLocked.value = true;
-      // close emoji if open
-      showEmoji.value = false;
       // append messages without confirmation from websocket
       currentChatMessages.value.unshift(
         {
@@ -211,34 +94,11 @@ const sendMessage = async () => {
 </script>
 
 <style scoped>
-.activeEmoji {
-  color: teal !important;
-}
-
-.file-input:deep().v-input__control,
-.file-input:deep().v-input__details {
-  display: none;
-}
-
 /* Fixed container - prevents dynamic growth */
 .chat-window-container {
   position: relative;
   height: 100%;
   overflow: hidden;
-}
-
-/* Emoji picker positioned above input */
-.emoji-picker-container {
-  position: absolute;
-  bottom: 90px;
-  left: 0;
-  right: 0;
-  z-index: 15;
-  pointer-events: none;
-}
-
-.emoji-picker-container > * {
-  pointer-events: auto;
 }
 
 /* Input container - fixed at bottom, grows upward */

@@ -14,6 +14,10 @@ export const useMessageStore = defineStore("messages", {
       moreMessagesToLoad: false,
       earliestUnreadMessageIndex: false,
       loadingMessages: false,
+      currentHint: null,
+      hintLoading: false,
+      selectedMessages: [],
+      userQuery: "",
     };
   },
   actions: {
@@ -213,6 +217,81 @@ export const useMessageStore = defineStore("messages", {
         console.error("Error getting hint:", error);
         this.displaySystemMessage("error", "Failed to get hint. Please try again.", 5000);
       }
+    },
+    async getHintForMessage(messageContent, messageGuid) {
+      this.hintLoading = true;
+      try {
+        const response = await getHint(messageContent);
+        const hintData = response.data;
+        this.currentHint = {
+          messageGuid: messageGuid,
+          originalMessage: messageContent,
+          content: hintData.response,
+          category: hintData.category,
+          subcategory: hintData.subcategory,
+          template: hintData.template,
+          confidence: hintData.confidence,
+          timestamp: new Date(),
+        };
+      } catch (error) {
+        console.error("Error getting hint for message:", error);
+        this.displaySystemMessage("error", "Failed to get AI recommendation. Please try again.", 5000);
+      } finally {
+        this.hintLoading = false;
+      }
+    },
+    async getHintForQuery(query) {
+      this.hintLoading = true;
+      try {
+        const response = await getHint(query);
+        const hintData = response.data;
+        this.currentHint = {
+          content: hintData.response,
+          category: hintData.category,
+          subcategory: hintData.subcategory,
+          template: hintData.template,
+          confidence: hintData.confidence,
+          route: hintData.route,
+          processing_time_ms: hintData.processing_time_ms,
+          candidates_found: hintData.candidates_found,
+          timestamp: new Date(),
+        };
+      } catch (error) {
+        console.error("Error getting hint for query:", error);
+        this.displaySystemMessage("error", "Failed to get AI recommendation. Please try again.", 5000);
+      } finally {
+        this.hintLoading = false;
+      }
+    },
+    toggleMessageSelection(messageGuid, messageContent) {
+      const index = this.selectedMessages.findIndex(m => m.guid === messageGuid);
+      if (index > -1) {
+        // Remove message from selection
+        this.selectedMessages.splice(index, 1);
+      } else {
+        // Add message to selection
+        this.selectedMessages.push({
+          guid: messageGuid,
+          content: messageContent
+        });
+      }
+      // Update user query with all selected messages
+      this.updateUserQuery();
+    },
+    updateUserQuery() {
+      this.userQuery = this.selectedMessages
+        .map(m => m.content)
+        .join(' ');
+    },
+    clearSelectedMessages() {
+      this.selectedMessages = [];
+      this.userQuery = "";
+    },
+    clearCurrentHint() {
+      this.currentHint = null;
+    },
+    isMessageSelected(messageGuid) {
+      return this.selectedMessages.some(m => m.guid === messageGuid);
     },
   },
   getters: {

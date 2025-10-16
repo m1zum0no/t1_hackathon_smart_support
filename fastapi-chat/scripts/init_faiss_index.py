@@ -24,7 +24,9 @@ def main():
     parser.add_argument("--recreate", action="store_true", help="Recreate the index if it already exists.")
     args = parser.parse_args()
 
-    logger.info("Starting FAISS index initialization...")
+    logger.info("=" * 80)
+    logger.info("FAISS INDEX INITIALIZATION")
+    logger.info("=" * 80)
     
     # Check if dataset exists
     if not os.path.exists(DATASET_PATH):
@@ -32,34 +34,43 @@ def main():
         logger.error("Please ensure smart_support.xlsx is in the data/ directory")
         return 1
     
+    logger.info(f"✓ Dataset found: {DATASET_PATH}")
+    
     # Check if index already exists
     if os.path.exists(FAISS_INDEX_PATH) and os.path.exists(METADATA_PATH):
         if not args.recreate:
             logger.info("FAISS index already exists. Skipping creation. Use --recreate to overwrite.")
             return 0
-        logger.info("Recreating FAISS index as requested.")
+        logger.info("Recreating FAISS index as requested...")
     
     try:
         # Initialize OpenAI client for Scibox API
+        logger.info(f"Connecting to Scibox API: {settings.SCIBOX_BASE_URL}")
         client = OpenAI(
             api_key=settings.SCIBOX_API_KEY,
             base_url=settings.SCIBOX_BASE_URL
         )
         
         # Initialize embedding model
+        logger.info(f"Using embedding model: {settings.SCIBOX_EMBEDDING_MODEL}")
         embedding_model = SciboxEmbeddings(
             client=client,
             model=settings.SCIBOX_EMBEDDING_MODEL
         )
         
-        logger.info("Creating FAISS index...")
+        logger.info("Creating FAISS index and L1 cache...")
+        logger.info("-" * 80)
         index, metadata = create_faiss_index(embedding_model)
         
-        logger.info(f"✓ FAISS index created successfully!")
+        logger.info("-" * 80)
+        logger.info("✓ INITIALIZATION COMPLETE!")
         logger.info(f"  - Index file: {FAISS_INDEX_PATH}")
         logger.info(f"  - Metadata file: {METADATA_PATH}")
+        logger.info(f"  - L1 cache file: {os.path.join('data', 'l1_cache.json')}")
         logger.info(f"  - Total vectors: {index.ntotal}")
         logger.info(f"  - Dimension: {index.d}")
+        logger.info(f"  - Metadata entries: {len(metadata)}")
+        logger.info("=" * 80)
         
         return 0
         

@@ -1,8 +1,8 @@
 <template>
-  <v-container style="max-width: 1000px" :class="compactView ? 'pa-0' : ''">
+  <v-container style="max-width: 1400px" :class="compactView ? 'pa-0' : ''">
     <v-row no-gutters>
       <!-- LEFT PANEL START -->
-      <v-col class="bg-items rounded-s-lg fill-height" :cols="compactView ? 12 : 4">
+      <v-col v-if="!leftPanelCollapsed" class="bg-items rounded-s-lg fill-height" :cols="compactView ? 12 : 3">
         <MenuPanel v-show="!compactView" />
 
         <!-- wait for asynchronous component to load -->
@@ -30,14 +30,34 @@
 
       <!-- LEFT PANEL CHATS END -->
 
-      <!-- RIGHT PANEL START  ONLY FOR LARGE VIEW -->
-      <v-col v-if="!compactView" class="ma-0 pa-0">
+      <!-- COLLAPSE BUTTON -->
+      <div v-if="!compactView && isChat && chatSelected" class="collapse-button-container">
+        <v-btn
+          @click="toggleLeftPanel"
+          icon
+          size="small"
+          color="primary"
+          elevation="2"
+          class="collapse-btn"
+        >
+          <v-icon>{{ leftPanelCollapsed ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon>
+        </v-btn>
+      </div>
+
+      <!-- CENTER PANEL START  ONLY FOR LARGE VIEW -->
+      <v-col v-if="!compactView" :cols="getCenterPanelCols" class="ma-0 pa-0" :class="leftPanelCollapsed ? 'rounded-s-lg' : ''">
 
         <SelectedChatWindow v-if="isChat && chatSelected" />
         <EmptyChatWindow v-else-if="isChat && !chatSelected" />
         <EmptySearchWindow v-else-if="isSearch" />
       </v-col>
-      <!-- RIGHT PANEL END -->
+      <!-- CENTER PANEL END -->
+      
+      <!-- RIGHT AI PANEL START - ONLY FOR LARGE VIEW -->
+      <v-col v-if="!compactView && isChat && chatSelected" :cols="getRightPanelCols" class="ma-0 pa-0">
+        <AIRecommendationPanel />
+      </v-col>
+      <!-- RIGHT AI PANEL END -->
     </v-row>
     <v-alert v-if="Object.keys(systemMessage).length > 0"
            height="70px"
@@ -104,6 +124,7 @@ import ContactsLoading from "@/components/ContactsLoading.vue";
 
 import SelectedChatWindow from "@/components/chat/SelectedChatWindow.vue"
 import EmptySearchWindow from "@/components/EmptySearchWindow.vue"
+import AIRecommendationPanel from "@/components/chat/AIRecommendationPanel.vue"
 
 import { useChatStore } from "@/store/chatStore";
 import { useMessageStore } from "@/store/messageStore";
@@ -124,6 +145,22 @@ const { currentUser, currentTheme } = storeToRefs(userStore);
 
 
 const activeTab = ref(true);
+const leftPanelCollapsed = ref(false);
+
+const toggleLeftPanel = () => {
+  leftPanelCollapsed.value = !leftPanelCollapsed.value;
+};
+
+const getCenterPanelCols = computed(() => {
+  if (leftPanelCollapsed.value) {
+    return isChat.value && chatSelected.value ? 7 : 12;
+  }
+  return isChat.value && chatSelected.value ? 5 : 8;
+});
+
+const getRightPanelCols = computed(() => {
+  return leftPanelCollapsed.value ? 5 : 4;
+});
 
 
 
@@ -171,7 +208,21 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* #Chat {
-  background-image: url("@/assets/chat-background.jpg");
-} */
+.collapse-button-container {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  transition: left 0.3s ease;
+}
+
+.collapse-btn {
+  background-color: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.collapse-btn:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+}
 </style>

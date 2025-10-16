@@ -13,31 +13,7 @@
         <div v-show="earliestUnreadMessageIndex === index" class="bg-items text-center py-2">
           <p class="text-primary font-weight-medium">Unread messages</p>
         </div>
-        <div v-if="message.user_guid === 'system'" class="system-message-container">
-          <v-card class="hint-card" elevation="3">
-            <v-card-title class="hint-header">
-              <v-icon color="yellow-darken-2" class="mr-2">mdi-lightbulb-on</v-icon>
-              AI Recommendation
-            </v-card-title>
-            <v-card-text>
-              <div v-if="message.category" class="mb-2">
-                <v-chip size="small" color="primary" class="mr-2">{{ message.category }}</v-chip>
-                <v-chip v-if="message.subcategory" size="small" color="secondary">{{ message.subcategory }}</v-chip>
-              </div>
-              <div class="hint-response mb-3">{{ message.content }}</div>
-              <v-divider v-if="message.template" class="my-2"></v-divider>
-              <div v-if="message.template" class="hint-template">
-                <strong>Template:</strong> {{ message.template }}
-              </div>
-              <div class="hint-confidence mt-2">
-                <v-chip :color="getConfidenceColor(message.confidence)" size="small">
-                  Confidence: {{ message.confidence || 'medium' }}
-                </v-chip>
-              </div>
-            </v-card-text>
-          </v-card>
-        </div>
-        <SpeakerBubble v-else-if="message.user_guid === currentUser.userGUID" class="ml-auto mr-2">
+        <SpeakerBubble v-if="message.user_guid === currentUser.userGUID" class="ml-auto mr-2">
           <v-list-item class="py-2 my-3 text-left">
             <v-list-item-title class="text-wrap">{{
               message.content
@@ -53,7 +29,7 @@
         </SpeakerBubble>
         <!-- to scroll to unread messages label: scroll-margin: 50px; -->
         <PartnerBubble v-else style="scroll-margin: 50px;" class="ml-2 partner-msg" :id="message.message_guid"
-          :index="index">
+          :index="index" :message-content="message.content" :message-guid="message.message_guid">
           <v-list-item class="py-2 my-3 ml-2 text-left">
             <v-list-item-title class="text-wrap">{{ message.content }}
             </v-list-item-title>
@@ -135,13 +111,6 @@ const showDateBreak = (index) => {
   return currentDate !== nextDate;
 };
 
-const getConfidenceColor = (confidence) => {
-  if (confidence === 'high') return 'success';
-  if (confidence === 'low') return 'error';
-  return 'warning';
-};
-
-
 // Function for Loading older messages
 const loadMoreMessages = async () => {
   try {
@@ -185,46 +154,6 @@ onMounted(() => {
 
 
 <style scoped>
-.system-message-container {
-  display: flex;
-  justify-content: center;
-  margin: 10px 0;
-  padding: 0 10px;
-}
-
-.hint-card {
-  max-width: 90%;
-  background: linear-gradient(135deg, #fffbea 0%, #fff9e6 100%);
-  border-left: 4px solid #f9a825;
-}
-
-.hint-header {
-  background-color: rgba(249, 168, 37, 0.1);
-  font-weight: 600;
-  font-size: 1rem;
-  padding: 12px 16px;
-}
-
-.hint-response {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #333;
-  white-space: pre-wrap;
-}
-
-.hint-template {
-  font-size: 0.85rem;
-  color: #666;
-  font-style: italic;
-  background-color: rgba(0, 0, 0, 0.03);
-  padding: 8px;
-  border-radius: 4px;
-}
-
-.hint-confidence {
-  display: flex;
-  justify-content: flex-end;
-}
 #container {
   /* height: 450px; */
   overflow: auto;

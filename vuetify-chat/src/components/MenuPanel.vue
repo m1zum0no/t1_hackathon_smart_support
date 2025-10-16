@@ -2,25 +2,6 @@
   <v-card :class="compactView ? 'rounded-t-0' : 'rounded-ts-lg'" color="panel" class="rounded-0"
     style="height: 60px;">
     <div class="mt-5 mb-3 d-flex justify-space-around">
-      <v-menu :close-on-content-click="false" @click:outside="clickedOutside">
-        <template v-slot:activator="{ props }">
-          <v-icon v-bind="props" size="large" class="flex-grow-1" id="icon-settings" @click="settingsClicked"
-            :color="settingsColor">mdi-tune
-          </v-icon>
-        </template>
-        <v-list bg-color="submenu" width="180px" class="ml-2">
-          <!-- <v-list-item class="settings-items" append-icon="mdi-close">
-          </v-list-item> -->
-          <v-list-item class="settings-items" title="Settings">
-          </v-list-item>
-          <v-list-item class="settings-items" title="Logout" @click="logout">
-          </v-list-item>
-          <v-list-item class="mb-n2">
-            <v-switch v-model="currentTheme" true-value="teal" false-value="midnight" :label="currentTheme==='teal'? 'Teal' : 'Midnight'" inset
-              color="teal-lighten-2" @change="switchTheme"></v-switch>
-          </v-list-item>
-        </v-list>
-      </v-menu>
       <v-icon size="large" class="flex-grow-1" id="icon-search" color="icons" :class="{ searchTab: isSearch }"
         @click="toggleSearch">mdi-compass
       </v-icon>
