@@ -76,15 +76,15 @@ const changeTitle = async (newTitle) => {
 
 const updateWindowTitle = async (friend) => {
   if (friend.first_name) {
-    window.document.title = `Chat: ${friend.first_name}`
+    window.document.title = `Smart Support: ${friend.first_name}`
   } 
 }
 
 onMounted (async () => {
   if (chatSelected.value) {
-    await changeTitle(`Chat: ${currentFriendFirstName.value}`);  
+    await changeTitle(`Smart Support: ${currentFriendFirstName.value}`);  
   } else {
-    await changeTitle("Ponder Pal: Direct Chats");
+    await changeTitle("Knowledge Base Support");
   }
 });
 

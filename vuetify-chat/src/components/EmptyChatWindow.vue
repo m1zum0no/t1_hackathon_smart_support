@@ -11,6 +11,4 @@
 
 <script setup>
 
-import EmptyChatIcon from "@/components/EmptyChatIcon.vue"
-
 </script>

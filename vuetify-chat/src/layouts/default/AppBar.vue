@@ -1,37 +1,23 @@
 <template>
-  <v-app-bar flat id="app-bar" color="appbar" v-if="isSearch || !compactView || compactView&&!chatSelected">
+  <v-app-bar flat id="app-bar" color="appbar" v-if="isSearch || !compactView || compactView&&!chatSelected" class="full-width-bar">
     <router-link :to="{ name: 'Chat' }" style="text-decoration: none; color: inherit" class="ml-2">
       <v-app-bar-title>
         <v-icon icon="mdi-chat" color="logoleft" style="z-index: 1;" />
         <v-icon icon="mdi-chat" color="logoright" style="transform: scaleX(-1);" class="ml-n5" />
 
-        <span class="mx-2 text-gray font-weight-bold" style="user-select: none; font-family: Courgette">Ponder Pal</span>
+        <span class="mx-2 text-gray font-weight-bold" style="user-select: none;">T1 Smart Support</span>
       </v-app-bar-title>
     </router-link>
 
     <div class="ml-auto" style="font-family: Sriracha">
 
       <div v-if="isLoggedIn" class="menu">
-        <router-link class="link" :to="{ name: 'Chat' }">Chat</router-link>
-        <v-menu :close-on-content-click="false">
-          <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props">
-              <img v-if="currentUser.userImage && !userImageError" :src="currentUser.userImage" alt="userImage"
-                class="profile-image" @error="() => handleImageError()">
-              <img v-else-if="userImageError" :src="notAvailablePhotoURL" alt="userImageNotAvailable"
-                class="profile-image">
-              <img v-else :src="defaultPhotoURL" alt="defaultUserImage" class="profile-image">
-            </v-list-item>
-          </template>
-          <v-list bg-color="submenu">
-            <v-list-item @click="logoutAndRedirect">Logout</v-list-item>
-          </v-list>
-        </v-menu>
+        <router-link class="link header-link" @click="logoutAndRedirect" to="/">Logout</router-link>
       </div>
 
       <div v-else class="menu">
-        <router-link class="link" :to="{ name: 'Login' }">Login</router-link>
-        <router-link class="link mr-5" :to="{ name: 'Register' }">Register</router-link>
+        <router-link class="link header-link" :to="{ name: 'Login' }">Login</router-link>
+        <router-link class="link header-link mr-5" :to="{ name: 'Register' }">Register</router-link>
       </div>
 
     </div>
@@ -81,10 +67,6 @@ const handleImageError = () => {
 </script>
 
 <style scoped>
-#app-bar {
-  /* background: radial-gradient(801px at 4.2% 16.4%, rgba(104, 211, 218, 0.99) 0%, rgb(184, 77, 235) 88.8%); */
-}
-
 .menu {
   display: flex;
   gap: 20px;
@@ -97,6 +79,17 @@ const handleImageError = () => {
   color: black;
 }
 
+.header-link {
+  color: var(--text) !important;
+  font-size: 16px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.header-link:hover {
+  color: var(--accent-blue) !important;
+}
+
 a.router-link-active {
   text-decoration-line: underline;
   -webkit-text-decoration-line: underline;
@@ -106,5 +99,16 @@ a.router-link-active {
   -webkit-text-decoration-thickness: 3px;
   text-underline-position: under;
   -webkit-text-underline-position: under;
+}
+
+.full-width-bar {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.full-width-bar :deep(.v-toolbar__content) {
+  max-width: 100% !important;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 </style>

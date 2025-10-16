@@ -11,9 +11,9 @@
       icon="mdi-lightbulb-on-outline" 
       variant="text" 
       size="small"
-      :color="isSelected ? 'yellow-darken-3' : 'yellow-darken-2'"
+      :color="isSelected ? 'accent' : 'grey'"
       class="lightbulb-btn"
-      title="Add to AI Query">
+      title="Add to Knowledge Base Query">
     </v-btn>
   </div>
 </template>
@@ -71,7 +71,7 @@ onMounted(() => {
   border-radius: 12px 12px 12px 2px;
   text-align: left;
   color: var(--text);
-  padding: 10px 14px;
+  padding: 6px 12px;
   margin-bottom: 0;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -87,8 +87,8 @@ onMounted(() => {
 
 .bubble-selected {
   background: #e3f2fd !important;
-  border-color: var(--accent-blue) !important;
-  box-shadow: 0 2px 4px rgba(74, 144, 226, 0.15);
+  border-color: var(--section-card-wrapper) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .bubble-bottom-left:before {

@@ -1,6 +1,6 @@
 <template>
   <MessagesLoading v-if="loadingMessages" :style="compactView ? { 'height': '450px' } : { 'height': '550px' }" />
-  <v-card v-show="!loadingMessages" class="rounded-0">
+  <v-card v-show="!loadingMessages" class="rounded-0" elevation="0">
     <!-- for compact view 600 - 60 (header) - 90 (send button)
     for large view 700 - 60 (header) - 90 (send button) -->
     <div id="container" ref="chatWindow" :style="compactView ? { 'height': '450px' } : { 'height': '550px' }">
@@ -14,26 +14,26 @@
           <p class="text-accent font-weight-medium">Unread messages</p>
         </div>
         <SpeakerBubble v-if="message.user_guid === currentUser.userGUID" class="ml-auto mr-2">
-          <v-list-item class="py-2 my-3 text-left">
-            <v-list-item-title class="text-wrap">{{
+          <v-list-item class="py-1 my-3 text-left bubble-list-item">
+            <v-list-item-title class="text-wrap bubble-text">{{
               message.content
             }}</v-list-item-title>
 
-            <v-list-item-subtitle class="mt-1">
+            <v-list-item-subtitle class="mt-1 bubble-timestamp">
               {{ formatTimestamp(message.created_at) }}
 
-              <v-icon v-if="message.is_sending" class="text-gray">mdi-check</v-icon>
-              <v-icon v-else :class="message.is_read ? 'text-blue' : 'text-gray'">mdi-check-all</v-icon>
+              <v-icon v-if="message.is_sending" size="x-small" class="ml-1 text-white">mdi-check</v-icon>
+              <v-icon v-else size="x-small" class="ml-1" :class="message.is_read ? 'text-white' : 'text-white'">mdi-check-all</v-icon>
             </v-list-item-subtitle>
           </v-list-item>
         </SpeakerBubble>
         <!-- to scroll to unread messages label: scroll-margin: 50px; -->
         <PartnerBubble v-else style="scroll-margin: 50px;" class="ml-2 partner-msg" :id="message.message_guid"
           :index="index" :message-content="message.content" :message-guid="message.message_guid">
-          <v-list-item class="py-2 my-3 ml-2 text-left">
-            <v-list-item-title class="text-wrap">{{ message.content }}
+          <v-list-item class="py-1 my-3 ml-2 text-left bubble-list-item">
+            <v-list-item-title class="text-wrap bubble-text">{{ message.content }}
             </v-list-item-title>
-            <v-list-item-subtitle class="mt-2">
+            <v-list-item-subtitle class="mt-1 bubble-timestamp-partner">
               {{ formatTimestamp(message.created_at) }}
             </v-list-item-subtitle>
           </v-list-item>
@@ -198,5 +198,29 @@ onMounted(() => {
 
 #container::-webkit-scrollbar-thumb:hover {
   background-color: var(--navy);
+}
+
+/* Bubble list item styling */
+.bubble-list-item {
+  padding: 0 !important;
+  min-height: auto !important;
+}
+
+.bubble-text {
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bubble-timestamp {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 0.9;
+}
+
+.bubble-timestamp-partner {
+  font-size: 11px;
+  color: var(--greyed-out-text);
 }
 </style>

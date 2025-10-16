@@ -14,7 +14,7 @@ import { onMounted } from 'vue';
 
 
 onMounted( async () => {
-  window.document.title = "Welcome to Ponder Pal"
+  window.document.title = "Welcome to Smart Support"
 })
 
 </script>

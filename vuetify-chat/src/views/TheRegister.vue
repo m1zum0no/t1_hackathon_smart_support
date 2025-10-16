@@ -1,48 +1,92 @@
 <template>
-  <v-card class="mx-auto my-10 py-5 px-5" color="teal-lighten-4" width="400px" rounded="lg"
-    style="font-family: Sriracha;">
-    <v-card-text class="text-center text-h5 my-3" style="font-family: Sriracha !important;">
-      Create an Account
-    </v-card-text>
+  <v-card class="mx-auto my-10 py-8 px-6 register-card" width="440px" elevation="3">
+    <v-card-title class="text-center register-title mb-6">
+      <v-icon size="large" color="primary" class="mb-2">mdi-account-plus</v-icon>
+      <div>Create Account</div>
+      <div class="text-subtitle-1 text-greyed-out mt-1">Join our support platform</div>
+    </v-card-title>
 
     <form @submit.prevent="submit">
-      <v-text-field v-model="firstName.value.value" :counter="20" :error-messages="firstName.errorMessage.value"
-        label="First Name" bg-color="teal-lighten-5" clearable class="mb-1"></v-text-field>
+      <v-text-field 
+        v-model="firstName.value.value" 
+        :counter="20" 
+        :error-messages="firstName.errorMessage.value"
+        label="First Name" 
+        variant="outlined"
+        density="comfortable"
+        clearable 
+        class="mb-3"
+        prepend-inner-icon="mdi-account"
+      ></v-text-field>
 
-      <v-text-field v-model="lastName.value.value" :counter="20" :error-messages="lastName.errorMessage.value"
-        label="Last Name" bg-color="teal-lighten-5" clearable class="mb-1"></v-text-field>
+      <v-text-field 
+        v-model="lastName.value.value" 
+        :counter="20" 
+        :error-messages="lastName.errorMessage.value"
+        label="Last Name" 
+        variant="outlined"
+        density="comfortable"
+        clearable 
+        class="mb-3"
+        prepend-inner-icon="mdi-account"
+      ></v-text-field>
 
-      <v-text-field v-model="username.value.value" :counter="20" :error-messages="username.errorMessage.value"
-        label="Username" bg-color="teal-lighten-5" clearable class="mb-1"></v-text-field>
+      <v-text-field 
+        v-model="username.value.value" 
+        :counter="20" 
+        :error-messages="username.errorMessage.value"
+        label="Username" 
+        variant="outlined"
+        density="comfortable"
+        clearable 
+        class="mb-3"
+        prepend-inner-icon="mdi-account-circle"
+      ></v-text-field>
 
-      <v-text-field v-model="email.value.value" :error-messages="email.errorMessage.value" label="E-mail"
-        bg-color="teal-lighten-5" clearable class="mb-1"></v-text-field>
+      <v-text-field 
+        v-model="email.value.value" 
+        :error-messages="email.errorMessage.value" 
+        label="E-mail"
+        variant="outlined"
+        density="comfortable"
+        clearable 
+        class="mb-3"
+        prepend-inner-icon="mdi-email"
+      ></v-text-field>
 
-      <v-text-field v-model="password.value.value" counter label="Password" :error-messages="password.errorMessage.value"
-        bg-color="teal-lighten-5" :type="passwordType" :append-inner-icon="passwordIcon" @click:append-inner="toggleShow"
-        class="mb-1" autocomplete="on"></v-text-field>
+      <v-text-field 
+        v-model="password.value.value" 
+        label="Password" 
+        :error-messages="password.errorMessage.value"
+        variant="outlined"
+        density="comfortable"
+        :type="passwordType" 
+        :append-inner-icon="passwordIcon" 
+        @click:append-inner="toggleShow"
+        class="mb-3" 
+        autocomplete="on"
+        prepend-inner-icon="mdi-lock"
+      ></v-text-field>
 
-      <v-file-input v-model="profileImage.value.value" :error-messages="profileImage.errorMessage.value"
-        bg-color="teal-lighten-5" clearable show-size :prepend-icon="null" prepend-inner-icon="mdi-camera"
-        @click:clear="profileImage.handleReset()"
-        accept="image/*" text-align: center label="Profile image [Optional]" class="mb-1"></v-file-input>
-
-      <v-hover v-slot:default="{ isHovering, props }">
-        <v-btn v-bind="props" :color="isHovering ? 'teal-lighten-3' : ''" class="rounded-lg" size="large" width="400px"
-          type="submit">
-          Register </v-btn>
-      </v-hover>
+      <v-btn 
+        color="primary" 
+        class="register-btn" 
+        size="large" 
+        width="100%"
+        type="submit"
+        elevation="0"
+      >
+        Create Account
+      </v-btn>
 
     </form>
-    <div class="text-center my-3">
+    <div class="text-center mt-5 login-link no-select">
       Already have an account?
-      <a href="/login/" class="text-teal-darken-1 text-decoration-none font-weight-medium">Login</a>
+      <a href="/login/" class="link-accent">Sign In</a>
     </div>
-    <div v-if="registrationError" class="text-red text-center mt-2">
+    <v-alert v-if="registrationError" type="error" variant="tonal" class="mt-4">
       {{ registrationError }}
-    </div>
-
-
+    </v-alert>
   </v-card>
 </template>
 <script setup>
@@ -164,39 +208,69 @@ const submit = handleSubmit(async (data) => {
 </script>
 
 <style scoped>
-/* change bg color on hover */
-#google:hover {
-  /* teal-lighten-3 */
-  background-color: #80CBC4 !important;
-  cursor: pointer;
+.register-card {
+  background-color: var(--section-card-background);
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* headlines with lines */
-.decorated {
-  overflow: hidden;
-  text-align: center;
+.register-title {
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: 0.25px;
+  display: block;
 }
 
-.decorated>span {
-  position: relative;
-  display: inline-block;
+.text-greyed-out {
+  color: var(--greyed-out-text);
+  font-weight: 400;
 }
 
-.decorated>span:before,
-.decorated>span:after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  border-bottom: 1px solid;
-  width: 100vw;
-  margin: 0 20px;
+.register-btn {
+  background-color: var(--navy) !important;
+  color: var(--navy-text) !important;
+  border-radius: 8px !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
 }
 
-.decorated>span:before {
-  right: 100%;
+.register-btn:hover {
+  background-color: var(--greyed-out-text) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
-.decorated>span:after {
-  left: 100%;
+.login-link {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.link-accent {
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.link-accent:hover {
+  color: var(--navy);
+  text-decoration: underline;
+}
+
+:deep(.v-field) {
+  border-radius: 8px !important;
+}
+
+:deep(.v-field--focused) {
+  border-color: var(--accent-blue) !important;
 }
 </style>

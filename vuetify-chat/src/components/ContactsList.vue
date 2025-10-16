@@ -136,7 +136,7 @@ const changeTitle = async (newTitle) => {
 
 onMounted(async () => {
   await userStore.getUsers();
-  await changeTitle("Ponder Pal: Contacts");
+  await changeTitle("Smart Support: Contacts");
   await contactsSelectedGA();
 });
 </script>

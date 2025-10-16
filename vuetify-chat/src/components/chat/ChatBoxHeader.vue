@@ -1,12 +1,9 @@
 <template>
-  <v-card class="rounded-0 chat-header" color="panel" height="60px" :class="compactView ? 'rounded-te-0' : 'rounded-te-lg'">
+  <v-card class="rounded-0 chat-header" color="panel" height="60px" elevation="0">
 
     <v-card-title class="header-content">
 
       <div class="d-flex align-center">
-        <v-btn icon variant="text" @click="goBack" class="mr-2" size="small">
-          <v-icon color="white">mdi-arrow-left</v-icon>
-        </v-btn>
         <img v-if="currentFriendImage && !currentFriendImageError" :src="currentFriendImage" class="profile-image"
           :alt="`${currentFriendFirstName}_image`" style="cursor: pointer;" @error="handleImageError()"
           @click="showPhoto = true" />
@@ -27,8 +24,13 @@
           <v-icon v-bind="props" size="large" color="white">mdi-dots-vertical
           </v-icon>
         </template>
-        <v-list bg-color="submenu">
-          <v-list-item append-icon="mdi-delete" title="Delete Chat" @click="deleteChat(currentChatGUID)">
+        <v-list bg-color="submenu" class="menu-list">
+          <v-list-item 
+            @click="deleteChat(currentChatGUID)"
+            class="menu-item"
+            prepend-icon="mdi-delete"
+          >
+            <v-list-item-title>Delete Chat</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -77,7 +79,7 @@ const goBack = () => {
   currentFriendUserName.value = "";
   currentFriendFirstName.value = "";
   currentFriendGUID.value = "";
-  window.document.title = "Ponder Pal: Direct Chats"
+  window.document.title = "Knowledge Base Support"
 
 
 
@@ -95,12 +97,11 @@ const deleteChat = async (chatGUID) => {
   }
 };
 
-
 </script>
 
 <style scoped>
 .chat-header {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: none !important;
 }
 
 .header-content {
@@ -108,6 +109,7 @@ const deleteChat = async (chatGUID) => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px !important;
+  border-radius: 0 !important;
 }
 
 .user-name {
@@ -139,5 +141,35 @@ const deleteChat = async (chatGUID) => {
   position: absolute;
   bottom: 0;
   left: -25%;
+}
+
+/* Menu styling */
+.menu-list {
+  min-width: 180px;
+  padding: 4px 0;
+}
+
+.menu-item {
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  transition: background-color 0.2s ease;
+}
+
+.menu-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.menu-item :deep(.v-list-item-title) {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.menu-item :deep(.v-icon) {
+  color: var(--greyed-out-text);
+  font-size: 20px;
+}
+
+.menu-item:hover :deep(.v-icon) {
+  color: var(--accent-blue);
 }
 </style>

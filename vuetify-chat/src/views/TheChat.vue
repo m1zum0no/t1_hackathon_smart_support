@@ -30,21 +30,13 @@
 
       <!-- LEFT PANEL CHATS END -->
 
-      <!-- COLLAPSE BUTTON -->
-      <div v-if="!compactView && isChat && chatSelected" class="collapse-button-container" :style="{ left: leftPanelCollapsed ? '0' : 'calc(25% - 16px)' }">
-        <v-btn
-          @click="toggleLeftPanel"
-          icon
-          size="small"
-          elevation="2"
-          class="collapse-btn"
-        >
-          <v-icon>{{ leftPanelCollapsed ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon>
-        </v-btn>
+      <!-- COLLAPSED CHAT ICON -->
+      <div v-if="!compactView && isChat && leftPanelCollapsed" class="collapsed-chat-icon" @click="toggleLeftPanel">
+        <v-icon color="white" size="large">mdi-chat</v-icon>
       </div>
 
       <!-- CENTER PANEL START  ONLY FOR LARGE VIEW -->
-      <v-col v-if="!compactView" :cols="getCenterPanelCols" class="ma-0 pa-0 chat-panel-height" :class="leftPanelCollapsed ? 'rounded-s-lg' : ''">
+      <v-col v-if="!compactView" :cols="getCenterPanelCols" class="ma-0 pa-0 chat-panel-height chat-panels-wrapper" :class="leftPanelCollapsed ? 'rounded-s-lg' : ''">
 
         <SelectedChatWindow v-if="isChat && chatSelected" />
         <EmptyChatWindow v-else-if="isChat && !chatSelected" />
@@ -53,7 +45,7 @@
       <!-- CENTER PANEL END -->
       
       <!-- RIGHT AI PANEL START - ONLY FOR LARGE VIEW -->
-      <v-col v-if="!compactView && isChat && chatSelected" :cols="getRightPanelCols" class="ma-0 pa-0 chat-panel-height">
+      <v-col v-if="!compactView && isChat && chatSelected" :cols="getRightPanelCols" class="ma-0 pa-0 chat-panel-height chat-panels-wrapper">
         <AIRecommendationPanel />
       </v-col>
       <!-- RIGHT AI PANEL END -->
@@ -235,5 +227,47 @@ onUnmounted(() => {
 .chat-panel-height {
   min-height: 700px;
   height: 700px;
+}
+
+.chat-panels-wrapper {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0 !important;
+}
+
+.chat-panels-wrapper:first-of-type {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.chat-panels-wrapper:last-of-type {
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}
+
+.collapsed-chat-icon {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  background-color: var(--navy);
+  border: 2px solid var(--navy);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+
+.collapsed-chat-icon:hover {
+  background-color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 </style>

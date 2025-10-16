@@ -13,8 +13,6 @@
           style="font-size: 10px; z-index: 1; user-select: none; position: absolute;"
           :style="compactView ? { 'right': '30%' } : { 'right': '20%' }"><span>{{ totalUnreadMessagesCount }}</span></p>
       </div>
-
-
     </div>
   </v-card>
 </template>

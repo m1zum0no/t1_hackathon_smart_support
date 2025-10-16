@@ -1,5 +1,5 @@
 <template>
-  <v-card class="ai-panel rounded-0 rounded-e-lg" elevation="2">
+  <v-card class="ai-panel rounded-0" elevation="0">
     <v-card-title class="panel-header">
       <v-icon color="white" class="mr-2" size="small">mdi-lightbulb-on</v-icon>
       Knowledge Base Assistant
@@ -8,7 +8,7 @@
     <v-divider></v-divider>
     
     <!-- User Query Section - Always visible -->
-    <v-card class="query-card">
+    <v-card class="query-card" elevation="0">
       <v-card-text class="query-section pa-3">
         <div class="mb-2">
           <v-chip size="small" color="blue-grey-lighten-4" class="mb-2">
@@ -29,6 +29,8 @@
             max-rows="6"
             hide-details
             class="query-textarea"
+            clearable
+            @click:clear="editableQuery = ''"
           ></v-textarea>
           <v-btn
             @click="requestRecommendation"
@@ -100,7 +102,7 @@
         <!-- Main recommendation -->
         <div class="hint-response mb-3">
           <div class="d-flex justify-space-between align-center mb-2">
-            <strong>Recommendation:</strong>
+            <strong>Instructions:</strong>
             <v-btn
               @click="copyRecommendation(currentHint.content)"
               size="small"
@@ -250,6 +252,7 @@ const getConfidencePercentage = (confidence) => {
   display: flex;
   flex-direction: column;
   background-color: var(--section-card-wrapper);
+  box-shadow: none !important;
 }
 
 .panel-header {
@@ -263,9 +266,9 @@ const getConfidencePercentage = (confidence) => {
 }
 
 .query-card {
-  background-color: var(--section-card-background);
+  background-color: var(--section-card-wrapper);
   box-shadow: none !important;
-  border-bottom: 1px solid var(--section-card-wrapper);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .query-section {
@@ -279,6 +282,15 @@ const getConfidencePercentage = (confidence) => {
 .query-textarea {
   font-size: 14px;
   flex: 1;
+}
+
+.query-textarea :deep(.v-field) {
+  background-color: var(--section-card-background);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.query-textarea :deep(.v-field--focused) {
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.15);
 }
 
 .hint-content {
@@ -297,6 +309,7 @@ const getConfidencePercentage = (confidence) => {
   font-size: 14px;
   line-height: 1.6;
   color: var(--text);
+  user-select: none;
 }
 
 .recommendation-text {

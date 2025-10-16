@@ -43,16 +43,20 @@ body {
   width: 40px;
   height: 40px;
   object-fit: cover;
-  border: 2px solid var(--section-card-wrapper);
 }
 
 /* Card Elevation Override - Subtle Shadows */
 .v-card {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .v-card.elevation-2 {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.v-card.elevation-3 {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* Button Styling - Professional */
@@ -84,5 +88,41 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--navy);
+}
+
+/* Prevent text selection on UI elements */
+.v-card-title,
+.v-card-subtitle,
+.v-btn,
+.v-icon,
+.v-list-item-title:not(.bubble-text),
+.v-list-item-subtitle,
+.v-chip,
+.v-divider,
+.v-toolbar,
+.v-app-bar,
+.v-navigation-drawer,
+label,
+.date-divider,
+.bubble-timestamp,
+.bubble-timestamp-partner,
+.unread-divider,
+a {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Allow selection in input areas and message content */
+.v-field__input,
+.v-textarea textarea,
+.bubble-text,
+.recommendation-text,
+.alternative-text {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
 }
 </style>

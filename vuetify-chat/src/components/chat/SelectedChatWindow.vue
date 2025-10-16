@@ -4,17 +4,31 @@
     <MainChat />
     
     <!-- SEND BUTTON COMPONENT START -->
-    <v-card class="rounded-0 rounded-be-lg input-container">
+    <v-card class="rounded-0 input-container">
       <v-row align="end" justify="center" no-gutters class="input-row pa-3">
-        <!-- @keydown.enter.exact.prevent -> Prevents next line on clicking ENTER -->
-        <!-- We should be able to add a new line by pressing SHIFT+ENTER -->
-        <!-- @keydown.enter -->
-        <v-textarea ref="textInput" @keydown.enter.prevent="sendMessage" hide-details placeholder="Type your message..." rows="1"
-          v-model="messageToSend" auto-grow max-rows="8" variant="outlined" @input="websocketStore.handleUserTyping"
-          :readonly="inputLocked || loadingMessages" class="limited-textarea" density="comfortable"></v-textarea>
-
-        <v-btn @click="sendMessage" icon="mdi-send" variant="flat" class="ml-2 send-button"
-          :color="messageToSend === '' ? 'grey-lighten-1' : 'accent'" size="large"
+        <v-textarea 
+          ref="textInput" 
+          @keydown.enter.prevent="sendMessage" 
+          hide-details 
+          placeholder="Type your message..." 
+          rows="1"
+          v-model="messageToSend" 
+          auto-grow 
+          max-rows="8" 
+          variant="solo"
+          @input="websocketStore.handleUserTyping"
+          :readonly="inputLocked || loadingMessages" 
+          class="limited-textarea"
+          clearable
+          @click:clear="messageToSend = ''"
+        ></v-textarea>
+        <v-btn 
+          @click="sendMessage" 
+          icon="mdi-send" 
+          variant="text" 
+          class="ml-2 send-button"
+          :class="messageToSend.trim() === '' ? 'send-button-inactive' : 'send-button-active'"
+          size="large"
           :disabled="messageToSend.trim() === ''">
         </v-btn>
       </v-row>
@@ -106,9 +120,9 @@ const sendMessage = async () => {
   left: 0;
   right: 0;
   z-index: 10;
-  background-color: var(--section-card-background);
-  border-top: 1px solid var(--section-card-wrapper);
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  background-color: var(--section-card-wrapper);
+  border-top: none;
+  box-shadow: none !important;
 }
 
 /* Keep buttons aligned to bottom */
@@ -123,19 +137,30 @@ const sendMessage = async () => {
 .limited-textarea :deep(.v-field) {
   border-radius: 8px !important;
   background-color: var(--section-card-background);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .limited-textarea :deep(.v-field--focused) {
-  border-color: var(--accent-blue) !important;
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.15);
 }
 
 .send-button {
   border-radius: 50% !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
-.send-button:hover {
+.send-button-inactive {
+  color: var(--greyed-out-text) !important;
+  background-color: transparent !important;
+}
+
+.send-button-active {
+  color: var(--accent-blue) !important;
+  background-color: transparent !important;
+}
+
+.send-button-active:hover {
+  background-color: rgba(74, 144, 226, 0.1) !important;
   transform: scale(1.05);
-  transition: transform 0.2s ease;
 }
 </style>
