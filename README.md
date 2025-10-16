@@ -13,3 +13,6 @@ Port: `5432`
 Username: `postgres`
 Password: `postgres`
 Database: `postgres`
+
+## После этого:
+`http://localhost:3000`
