@@ -1,6 +1,5 @@
 <template>
-  <v-card class="rounded-0 chat-header" color="panel" height="60px" elevation="0">
-
+  <v-card class="rounded-0 chat-header" color="panel" elevation="0">
     <v-card-title class="header-content">
 
       <div class="d-flex align-center">
@@ -12,7 +11,7 @@
         <img v-else :src="defaultPhotoURL" alt="defaultUserImage" class="profile-image">
         <StatusCircle :friendStatus="friendStatuses[currentFriendGUID]" />
         <!-- Typing status -->
-        <span class="ml-2 user-name">{{ currentFriendFirstName }}</span>
+        <span class="ml-2 header-title">{{ currentFriendFirstName }}</span>
         <span v-show="friendTyping" class="typing-indicator ml-2">
             is typing
             <ThreeDots class="ml-n1" />
@@ -101,15 +100,26 @@ const deleteChat = async (chatGUID) => {
 
 <style scoped>
 .chat-header {
-  box-shadow: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+  height: 64px;
+  border-bottom: 1px solid var(--section-card-wrapper);
+  background-color: var(--navy) !important;
+  border-radius: 0 !important;
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px !important;
+  padding: 16px !important;
   border-radius: 0 !important;
+  height: 64px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--navy-text);
 }
 
 .user-name {

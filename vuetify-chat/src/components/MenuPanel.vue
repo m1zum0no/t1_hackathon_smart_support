@@ -1,17 +1,27 @@
 <template>
-  <v-card :class="compactView ? 'rounded-t-0' : 'rounded-ts-lg'" color="panel" class="rounded-0"
-    style="height: 60px;">
-    <div class="mt-5 mb-3 d-flex justify-space-around">
-      <v-icon size="large" class="flex-grow-1" id="icon-search" color="icons" :class="{ searchTab: isSearch }"
-        @click="toggleSearch">mdi-compass
-      </v-icon>
-      <div class="d-flex flex-grow-1" style="position: relative;">
-        <v-icon id="icon-chats" :class="{ chatsTab: isChat }" class="flex-grow-1" size="large" color="icons"
-          @click="toggleChat">mdi-chat
+  <v-card color="panel" class="menu-header" elevation="0">
+    <div class="d-flex align-center justify-space-between pa-3">
+      <div class="d-flex align-center gap-3">
+        <v-btn
+          v-if="!compactView"
+          @click="$emit('toggle-panel')"
+          icon
+          variant="text"
+          size="small"
+        >
+          <v-icon color="icons">mdi-menu</v-icon>
+        </v-btn>
+        <v-icon size="large" id="icon-search" color="icons" :class="{ searchTab: isSearch }"
+          @click="toggleSearch">mdi-compass
         </v-icon>
-        <p v-if="totalUnreadMessagesCount" class="px-1 bg-pink-lighten-3 rounded-lg"
-          style="font-size: 10px; z-index: 1; user-select: none; position: absolute;"
-          :style="compactView ? { 'right': '30%' } : { 'right': '20%' }"><span>{{ totalUnreadMessagesCount }}</span></p>
+        <div style="position: relative;">
+          <v-icon id="icon-chats" :class="{ chatsTab: isChat }" size="large" color="icons"
+            @click="toggleChat">mdi-chat
+          </v-icon>
+          <span v-if="totalUnreadMessagesCount" class="unread-badge">
+            {{ totalUnreadMessagesCount }}
+          </span>
+        </div>
       </div>
     </div>
   </v-card>
@@ -19,7 +29,9 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, defineEmits } from "vue";
+
+const emit = defineEmits(['toggle-panel']);
 
 import { storeToRefs } from "pinia";
 
@@ -131,10 +143,30 @@ const switchTheme = async () => {
 }
 
 /* Unread badge styling */
-:deep(.bg-pink-lighten-3) {
-  background-color: var(--accent-blue) !important;
-  color: var(--navy-text) !important;
+.menu-header {
+  height: 64px;
+  background-color: #e3e4ed !important;
+  border-bottom: 1px solid var(--section-card-wrapper);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 0 !important;
+}
+
+.gap-3 {
+  gap: 12px;
+}
+
+.unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  background-color: var(--accent-blue);
+  color: var(--navy-text);
+  font-size: 10px;
   font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
 }
 
 @keyframes beat {

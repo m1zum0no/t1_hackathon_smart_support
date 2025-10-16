@@ -109,8 +109,10 @@ const sendMessage = async () => {
 /* Fixed container - prevents dynamic growth */
 .chat-window-container {
   position: relative;
-  height: 100%;
+  height: calc(100vh - 64px);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Input container - fixed at bottom, grows upward */

@@ -1,8 +1,10 @@
 <template>
   <v-card class="ai-panel rounded-0" elevation="0">
     <v-card-title class="panel-header">
-      <v-icon color="white" class="mr-2" size="small">mdi-lightbulb-on</v-icon>
-      Knowledge Base Assistant
+      <div class="d-flex align-center">
+        <v-icon color="white" class="mr-2">mdi-lightbulb-on</v-icon>
+        <span class="header-title">Knowledge Base Assistant</span>
+      </div>
     </v-card-title>
     
     <v-divider></v-divider>
@@ -258,11 +260,20 @@ const getConfidencePercentage = (confidence) => {
 .panel-header {
   background: var(--navy);
   color: var(--navy-text);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--section-card-wrapper);
   font-weight: 600;
-  font-size: 1rem;
-  padding: 16px;
-  letter-spacing: 0.25px;
+  padding: 16px !important;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 0 !important;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--navy-text);
 }
 
 .query-card {

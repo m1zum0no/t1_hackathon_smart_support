@@ -1,55 +1,58 @@
 <template>
-  <v-container style="max-width: 1400px" :class="compactView ? 'pa-0' : ''">
-    <v-row no-gutters>
+  <div class="chat-layout" :class="compactView ? 'compact' : 'full'">
+    <!-- Overlay for collapsed panel -->
+    <div v-if="leftPanelCollapsed && !compactView" class="overlay" @click="toggleLeftPanel"></div>
+    
+    <v-row no-gutters class="main-row">
       <!-- LEFT PANEL START -->
-      <v-col v-if="!leftPanelCollapsed" class="bg-items rounded-s-lg fill-height" :cols="compactView ? 12 : 3">
-        <MenuPanel v-show="!compactView" />
+      <div v-if="!compactView" class="left-panel" :class="{ 'collapsed': leftPanelCollapsed }">
+        <MenuPanel v-show="!compactView" @toggle-panel="toggleLeftPanel" />
 
         <!-- wait for asynchronous component to load -->
         <!-- https://kaperskyguru.medium.com/exploring-suspense-in-vue-3-9e88c0c4535d -->
         <suspense v-if="isSearch">
           <template #default>
-            <ContactsList :style="compactView ? { height: '540px' } : { height: '640px' }"
-              :class="compactView ? '' : 'rounded-bs-lg'" />
+            <ContactsList :style="{ height: 'calc(100vh - 128px)' }" />
           </template>
           <template #fallback>
-            <ContactsLoading v-once :style="compactView ? { height: '540px' } : { height: '640px' }" />
+            <ContactsLoading v-once :style="{ height: 'calc(100vh - 128px)' }" />
           </template>
         </suspense>
 
         <ChatsList v-if="(isChat && !chatSelected) || (isChat && !compactView)"
-          :style="compactView ? { height: '540px' } : { height: '640px' }" :class="compactView ? '' : 'rounded-bs-lg'" />
+          :style="{ height: 'calc(100vh - 128px)' }" />
 
         <!-- these two appear irrespective of view -->
 
         <SelectedChatWindow v-if="compactView && isChat && chatSelected" style="height: 600px" />
-      </v-col>
-      <v-col v-show="compactView">
+      </div>
+      
+      <!-- Compact view menu -->
+      <div v-if="compactView" class="compact-menu">
         <MenuPanel />
-      </v-col>
-
-      <!-- LEFT PANEL CHATS END -->
-
-      <!-- COLLAPSED CHAT ICON -->
-      <div v-if="!compactView && isChat && leftPanelCollapsed" class="collapsed-chat-icon" @click="toggleLeftPanel">
-        <v-icon color="white" size="large">mdi-chat</v-icon>
       </div>
 
-      <!-- CENTER PANEL START  ONLY FOR LARGE VIEW -->
-      <v-col v-if="!compactView" :cols="getCenterPanelCols" class="ma-0 pa-0 chat-panel-height chat-panels-wrapper" :class="leftPanelCollapsed ? 'rounded-s-lg' : ''">
+      <!-- LEFT PANEL END -->
 
+      <!-- COLLAPSED PANEL TRIGGER -->
+      <div v-if="!compactView && leftPanelCollapsed" class="collapsed-trigger" @click="toggleLeftPanel">
+        <v-icon color="white" size="large">mdi-menu</v-icon>
+      </div>
+
+      <!-- MAIN CHAT PANEL -->
+      <div v-if="!compactView" class="main-panel">
         <SelectedChatWindow v-if="isChat && chatSelected" />
         <EmptyChatWindow v-else-if="isChat && !chatSelected" />
         <EmptySearchWindow v-else-if="isSearch" />
-      </v-col>
-      <!-- CENTER PANEL END -->
-      
-      <!-- RIGHT AI PANEL START - ONLY FOR LARGE VIEW -->
-      <v-col v-if="!compactView && isChat && chatSelected" :cols="getRightPanelCols" class="ma-0 pa-0 chat-panel-height chat-panels-wrapper">
-        <AIRecommendationPanel />
-      </v-col>
-      <!-- RIGHT AI PANEL END -->
+      </div>
+      <!-- MAIN PANEL END -->
     </v-row>
+    
+    <!-- AI RECOMMENDATION PANEL - SEPARATE, CENTERED -->
+    <div v-if="!compactView && isChat && chatSelected" class="ai-panel-floating">
+      <AIRecommendationPanel />
+    </div>
+    
     <v-alert v-if="Object.keys(systemMessage).length > 0"
            height="70px"
            :color="alertColor"
@@ -61,7 +64,7 @@
            class="mt-3 text-center text-h6 font-weight-bold mx-auto rounded-xl">
     {{ systemMessage.content }}
   </v-alert>
-  </v-container>
+  </div>
 </template>
 
 <script setup>
@@ -203,71 +206,108 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.collapse-button-container {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 100;
-  transition: left 0.3s ease;
+.chat-layout {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 64px); /* Subtract app bar height */
+  overflow: hidden;
 }
 
-.collapse-btn {
-  background-color: var(--section-card-background) !important;
-  color: var(--navy) !important;
-  border: 1px solid var(--section-card-wrapper) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+.main-row {
+  height: 100%;
+  position: relative;
 }
 
-.collapse-btn:hover {
-  background-color: var(--accent-blue) !important;
-  color: var(--navy-text) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.chat-panel-height {
-  min-height: 700px;
-  height: 700px;
-}
-
-.chat-panels-wrapper {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 0 !important;
-}
-
-.chat-panels-wrapper:first-of-type {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-}
-
-.chat-panels-wrapper:last-of-type {
-  border-top-right-radius: 12px !important;
-  border-bottom-right-radius: 12px !important;
-}
-
-.collapsed-chat-icon {
-  position: absolute;
+/* LEFT PANEL - Telegram style */
+.left-panel {
+  position: fixed;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 100;
+  top: 64px; /* App bar height */
+  width: 380px;
+  height: calc(100vh - 64px);
+  background-color: var(--section-card-background);
+  border-right: 1px solid var(--section-card-wrapper);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+.left-panel.collapsed {
+  transform: translateX(-380px);
+}
+
+/* MAIN CHAT PANEL - Constrained width for AI panel */
+.main-panel {
+  position: fixed;
+  left: 380px;
+  top: 64px;
+  right: 420px;
+  height: calc(100vh - 64px);
+  background-color: var(--section-card-background);
+  transition: left 0.3s ease, right 0.3s ease;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  border-right: 1px solid var(--section-card-wrapper);
+}
+
+.left-panel.collapsed ~ .main-panel {
+  left: 0;
+}
+
+/* AI PANEL - Fixed right panel */
+.ai-panel-floating {
+  position: fixed;
+  right: 0;
+  top: 64px;
+  width: 420px;
+  height: calc(100vh - 64px);
+  background-color: var(--section-card-background);
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 900;
+  overflow: hidden;
+}
+
+/* Overlay for collapsed state */
+.overlay {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  transition: opacity 0.3s ease;
+}
+
+/* Collapsed trigger button */
+.collapsed-trigger {
+  position: fixed;
+  left: 16px;
+  top: 80px;
+  z-index: 1001;
   background-color: var(--navy);
-  border: 2px solid var(--navy);
-  border-radius: 8px;
-  padding: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
-.collapsed-chat-icon:hover {
+.collapsed-trigger:hover {
   background-color: var(--accent-blue);
-  border-color: var(--accent-blue);
-  transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
+}
+
+/* Compact view styles */
+.compact-menu {
+  width: 100%;
 }
 </style>
