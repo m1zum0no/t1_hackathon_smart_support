@@ -151,6 +151,10 @@ onMounted(async () => {
   font-size: 15px;
 }
 
+.search-input :deep(.v-field) {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
 #contactList {
   overflow: auto;
 }

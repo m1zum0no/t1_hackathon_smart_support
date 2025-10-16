@@ -1,7 +1,7 @@
 <template>
   <div class="chat-layout" :class="compactView ? 'compact' : 'full'">
-    <!-- Overlay for collapsed panel -->
-    <div v-if="leftPanelCollapsed && !compactView" class="overlay" @click="toggleLeftPanel"></div>
+    <!-- Overlay for open sidebar - only when chat is selected -->
+    <div v-if="!leftPanelCollapsed && !compactView && chatSelected" class="sidebar-overlay" @click="toggleLeftPanel"></div>
     
     <v-row no-gutters class="main-row">
       <!-- LEFT PANEL START -->
@@ -34,16 +34,20 @@
 
       <!-- LEFT PANEL END -->
 
-      <!-- COLLAPSED PANEL TRIGGER -->
-      <div v-if="!compactView && leftPanelCollapsed" class="collapsed-trigger" @click="toggleLeftPanel">
-        <v-icon color="white" size="large">mdi-menu</v-icon>
+      <!-- COLLAPSED PANEL TRIGGER - only when chat is selected -->
+      <div v-if="!compactView && leftPanelCollapsed && chatSelected" class="collapsed-trigger" @click="toggleLeftPanel">
+        <div class="collapsed-chat-badge">
+          <v-icon color="white" size="x-large">mdi-chat</v-icon>
+          <span v-if="totalUnreadMessagesCount" class="collapsed-unread-badge">
+            {{ totalUnreadMessagesCount }}
+          </span>
+        </div>
       </div>
 
       <!-- MAIN CHAT PANEL -->
       <div v-if="!compactView" class="main-panel">
         <SelectedChatWindow v-if="isChat && chatSelected" />
-        <EmptyChatWindow v-else-if="isChat && !chatSelected" />
-        <EmptySearchWindow v-else-if="isSearch" />
+        <EmptyStateWindow v-else />
       </div>
       <!-- MAIN PANEL END -->
     </v-row>
@@ -109,7 +113,6 @@ const ContactsList = defineAsyncComponent(() =>
   import("@/components/ContactsList.vue")
 );
 
-import EmptyChatWindow from "@/components/EmptyChatWindow.vue";
 import ChatsList from "@/components/ChatsList.vue";
 import MenuPanel from "@/components/MenuPanel.vue";
 
@@ -117,7 +120,7 @@ import ContactsLoading from "@/components/ContactsLoading.vue";
 
 
 import SelectedChatWindow from "@/components/chat/SelectedChatWindow.vue"
-import EmptySearchWindow from "@/components/EmptySearchWindow.vue"
+import EmptyStateWindow from "@/components/EmptyStateWindow.vue";
 import AIRecommendationPanel from "@/components/chat/AIRecommendationPanel.vue"
 
 import { useChatStore } from "@/store/chatStore";
@@ -132,7 +135,7 @@ const mainStore = useMainStore();
 const websocketStore = useWebsocketStore();
 const userStore = useUserStore();
 
-const { chatSelected } = storeToRefs(chatStore);
+const { chatSelected, totalUnreadMessagesCount } = storeToRefs(chatStore);
 const { systemMessage } = storeToRefs(messageStore);
 const { isSearch, isChat, compactView } = storeToRefs(mainStore);
 const { currentUser, currentTheme } = storeToRefs(userStore);
@@ -218,16 +221,16 @@ onUnmounted(() => {
   position: relative;
 }
 
-/* LEFT PANEL - Telegram style */
+/* LEFT PANEL - True sidebar overlay */
 .left-panel {
   position: fixed;
   left: 0;
   top: 64px; /* App bar height */
-  width: 380px;
+  width: 248px;
   height: calc(100vh - 64px);
   background-color: var(--section-card-background);
   border-right: 1px solid var(--section-card-wrapper);
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease;
   z-index: 1000;
   overflow: hidden;
@@ -235,26 +238,22 @@ onUnmounted(() => {
 }
 
 .left-panel.collapsed {
-  transform: translateX(-380px);
+  transform: translateX(-248px);
 }
 
-/* MAIN CHAT PANEL - Constrained width for AI panel */
+/* MAIN CHAT PANEL - Fixed width, not affected by sidebar */
 .main-panel {
   position: fixed;
-  left: 380px;
+  left: 0;
   top: 64px;
   right: 420px;
   height: calc(100vh - 64px);
   background-color: var(--section-card-background);
-  transition: left 0.3s ease, right 0.3s ease;
+  transition: none;
   border-radius: 0;
   overflow: hidden;
   box-shadow: none;
   border-right: 1px solid var(--section-card-wrapper);
-}
-
-.left-panel.collapsed ~ .main-panel {
-  left: 0;
 }
 
 /* AI PANEL - Fixed right panel */
@@ -271,8 +270,8 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-/* Overlay for collapsed state */
-.overlay {
+/* Overlay for open sidebar */
+.sidebar-overlay {
   position: fixed;
   top: 64px;
   left: 0;
@@ -283,27 +282,47 @@ onUnmounted(() => {
   transition: opacity 0.3s ease;
 }
 
+
 /* Collapsed trigger button */
 .collapsed-trigger {
   position: fixed;
   left: 16px;
   top: 80px;
   z-index: 1001;
-  background-color: var(--navy);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.collapsed-chat-badge {
+  position: relative;
+  background-color: rgba(128, 128, 128, 0.5);
   border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
-.collapsed-trigger:hover {
-  background-color: var(--accent-blue);
+.collapsed-chat-badge:hover {
+  background-color: rgba(128, 128, 128, 0.7);
   transform: scale(1.1);
+}
+
+.collapsed-unread-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: var(--accent-blue);
+  color: var(--navy-text);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
 }
 
 /* Compact view styles */

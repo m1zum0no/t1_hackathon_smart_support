@@ -1,27 +1,25 @@
 <template>
   <v-card color="panel" class="menu-header" elevation="0">
-    <div class="d-flex align-center justify-space-between pa-3">
-      <div class="d-flex align-center gap-3">
-        <v-btn
-          v-if="!compactView"
-          @click="$emit('toggle-panel')"
-          icon
-          variant="text"
-          size="small"
-        >
-          <v-icon color="icons">mdi-menu</v-icon>
-        </v-btn>
-        <v-icon size="large" id="icon-search" color="icons" :class="{ searchTab: isSearch }"
-          @click="toggleSearch">mdi-compass
+    <div class="d-flex align-center justify-space-around pa-3 icon-container">
+      <v-btn
+        v-if="!compactView"
+        @click="$emit('toggle-panel')"
+        icon
+        variant="text"
+        size="small"
+      >
+        <v-icon color="icons" size="x-large">mdi-menu</v-icon>
+      </v-btn>
+      <v-icon size="x-large" id="icon-search" color="icons" :class="{ searchTab: isSearch }"
+        @click="toggleSearch">mdi-compass
+      </v-icon>
+      <div style="position: relative;">
+        <v-icon id="icon-chats" :class="{ chatsTab: isChat }" size="x-large" color="icons"
+          @click="toggleChat">mdi-chat
         </v-icon>
-        <div style="position: relative;">
-          <v-icon id="icon-chats" :class="{ chatsTab: isChat }" size="large" color="icons"
-            @click="toggleChat">mdi-chat
-          </v-icon>
-          <span v-if="totalUnreadMessagesCount" class="unread-badge">
-            {{ totalUnreadMessagesCount }}
-          </span>
-        </div>
+        <span v-if="totalUnreadMessagesCount" class="unread-badge">
+          {{ totalUnreadMessagesCount }}
+        </span>
       </div>
     </div>
   </v-card>
@@ -151,8 +149,12 @@ const switchTheme = async () => {
   border-radius: 0 !important;
 }
 
-.gap-3 {
-  gap: 12px;
+.icon-container {
+  width: 100%;
+}
+
+.icon-container > * {
+  flex-shrink: 0;
 }
 
 .unread-badge {

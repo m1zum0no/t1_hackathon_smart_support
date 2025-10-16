@@ -1,14 +1,35 @@
 <template>
-    <v-col class="d-flex rounded-0 rounded-e-lg bg-icons" style="height: 700px">
-        <div class="my-auto mx-auto">
-            <!-- MOVED SVG INTO A SEPARATE TEMPLATE DUE TO PERFORMANC ISSUES -->
-            <!-- RELATED TO LOADING SVG IN IMG -->
-            <EmptyChatIcon style="height: 100px; margin-left: 30%;" />
-            <p style="user-select: none;">Select a chat to continue messaging</p>
+    <div class="empty-chat-container">
+        <div class="empty-chat-content">
+            <p class="empty-chat-text">Select a contact to start conversation</p>
         </div>
-    </v-col>
+    </div>
 </template>
 
 <script setup>
 
 </script>
+
+<style scoped>
+.empty-chat-container {
+  width: 100%;
+  height: calc(100vh - 64px);
+  background-color: var(--section-card-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-chat-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-chat-text {
+  color: var(--greyed-out-text);
+  font-size: 18px;
+  user-select: none;
+  text-align: center;
+}
+</style>

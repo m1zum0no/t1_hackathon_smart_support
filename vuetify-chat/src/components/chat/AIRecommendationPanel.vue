@@ -12,8 +12,8 @@
     <!-- User Query Section - Always visible -->
     <v-card class="query-card" elevation="0">
       <v-card-text class="query-section pa-3">
-        <div class="mb-2">
-          <v-chip size="small" color="blue-grey-lighten-4" class="mb-2">
+        <div class="mb-2 d-flex align-center">
+          <v-chip size="small" class="user-query-chip">
             <v-icon start size="small">mdi-message-text</v-icon>
             User Query
           </v-chip>
@@ -26,9 +26,9 @@
             v-model="editableQuery"
             placeholder="Select messages or type your query here..."
             variant="solo"
-            rows="1"
+            rows="2"
             auto-grow
-            max-rows="6"
+            max-rows="8"
             hide-details
             class="query-textarea"
             clearable
@@ -40,9 +40,8 @@
             :loading="loading"
             icon="mdi-lightbulb-on"
             variant="plain"
-            color="primary"
             size="large"
-            class="ml-1"
+            class="ml-1 lightbulb-query-btn"
           >
           </v-btn>
         </v-row>
@@ -295,13 +294,32 @@ const getConfidencePercentage = (confidence) => {
   flex: 1;
 }
 
+.query-textarea {
+  min-height: 80px;
+}
+
 .query-textarea :deep(.v-field) {
   background-color: var(--section-card-background);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  min-height: 80px;
 }
 
 .query-textarea :deep(.v-field--focused) {
-  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.15);
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.15) !important;
+}
+
+.user-query-chip {
+  background-color: #b8eef3 !important;
+  color: #61c9d3 !important;
+  font-weight: 600;
+}
+
+.user-query-chip :deep(.v-icon) {
+  color: #61c9d3 !important;
+}
+
+.lightbulb-query-btn {
+  color: #61c9d3 !important;
 }
 
 .hint-content {

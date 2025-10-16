@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar flat id="app-bar" color="appbar" v-if="isSearch || !compactView || compactView&&!chatSelected" class="full-width-bar">
+  <v-app-bar id="app-bar" color="appbar" v-if="isSearch || !compactView || compactView&&!chatSelected" class="full-width-bar app-bar-shadow">
     <router-link :to="{ name: 'Chat' }" style="text-decoration: none; color: inherit" class="ml-2">
       <v-app-bar-title>
         <v-icon icon="mdi-chat" color="logoleft" style="z-index: 1;" />
@@ -80,7 +80,7 @@ const handleImageError = () => {
 }
 
 .header-link {
-  color: var(--text) !important;
+  color: white !important;
   font-size: 16px;
   font-weight: 600;
   transition: color 0.2s ease;
@@ -110,5 +110,9 @@ a.router-link-active {
   max-width: 100% !important;
   padding-left: 16px;
   padding-right: 16px;
+}
+
+.app-bar-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 </style>

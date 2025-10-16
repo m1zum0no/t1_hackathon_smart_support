@@ -11,8 +11,8 @@
       icon="mdi-lightbulb-on-outline" 
       variant="text" 
       size="small"
-      :color="isSelected ? 'accent' : 'grey'"
       class="lightbulb-btn"
+      :class="isSelected ? 'lightbulb-active' : 'lightbulb-inactive'"
       title="Add to Knowledge Base Query">
     </v-btn>
   </div>
@@ -96,9 +96,18 @@ onMounted(() => {
 }
 
 .lightbulb-btn {
-  opacity: 0.6;
   transition: all 0.2s;
   flex-shrink: 0;
+}
+
+.lightbulb-inactive {
+  color: #757575 !important;
+  opacity: 0.8;
+}
+
+.lightbulb-active {
+  color: #61c9d3 !important;
+  opacity: 1;
 }
 
 .lightbulb-btn:hover {

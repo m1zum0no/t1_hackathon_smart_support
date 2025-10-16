@@ -5,7 +5,7 @@
     
     <!-- SEND BUTTON COMPONENT START -->
     <v-card class="rounded-0 input-container">
-      <v-row align="end" justify="center" no-gutters class="input-row pa-3">
+      <v-row align="end" justify="center" no-gutters class="input-row pa-2">
         <v-textarea 
           ref="textInput" 
           @keydown.enter.prevent="sendMessage" 
@@ -109,7 +109,7 @@ const sendMessage = async () => {
 /* Fixed container - prevents dynamic growth */
 .chat-window-container {
   position: relative;
-  height: calc(100vh - 64px);
+  height: calc(101vh - 64px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -139,11 +139,11 @@ const sendMessage = async () => {
 .limited-textarea :deep(.v-field) {
   border-radius: 8px !important;
   background-color: var(--section-card-background);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
 }
 
 .limited-textarea :deep(.v-field--focused) {
-  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.15);
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.15) !important;
 }
 
 .send-button {
