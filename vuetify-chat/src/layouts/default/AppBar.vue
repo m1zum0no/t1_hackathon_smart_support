@@ -1,6 +1,6 @@
 <template>
   <v-app-bar flat id="app-bar" color="appbar" v-if="isSearch || !compactView || compactView&&!chatSelected">
-    <router-link :to="{ name: 'Home' }" style="text-decoration: none; color: inherit" class="ml-2">
+    <router-link :to="{ name: 'Chat' }" style="text-decoration: none; color: inherit" class="ml-2">
       <v-app-bar-title>
         <v-icon icon="mdi-chat" color="logoleft" style="z-index: 1;" />
         <v-icon icon="mdi-chat" color="logoright" style="transform: scaleX(-1);" class="ml-n5" />
@@ -24,7 +24,6 @@
             </v-list-item>
           </template>
           <v-list bg-color="submenu">
-            <v-list-item>View Profile</v-list-item>
             <v-list-item @click="logoutAndRedirect">Logout</v-list-item>
           </v-list>
         </v-menu>

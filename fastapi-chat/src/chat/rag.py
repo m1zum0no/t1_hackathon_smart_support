@@ -21,6 +21,13 @@ FAISS_INDEX_PATH = os.path.join(DATA_DIR, "faiss_index_bge_m3.bin")
 METADATA_PATH = os.path.join(DATA_DIR, "metadata.json")
 L1_CACHE_PATH = os.path.join(DATA_DIR, "l1_cache.json")
 
+class Candidate(BaseModel):
+    """Single candidate result."""
+    response: str
+    confidence: int  # 0-100
+    category: str = ""
+    subcategory: str = ""
+
 class Hint(BaseModel):
     response: str
     confidence: int  # 0-100
@@ -30,6 +37,7 @@ class Hint(BaseModel):
     route: str = ""  # L1, L2, L3, etc.
     processing_time_ms: int = 0
     candidates_found: int = 0
+    alternatives: list[Candidate] = []  # Multiple candidates for similar confidence
 
 # --- Model and Data Loading ---
 
@@ -325,8 +333,13 @@ def l2_semantic_search(question: str, top_k: int = 5) -> List[Dict[str, Any]]:
     return results
 
 
-def l3_llm_rerank(question: str, candidates: List[Dict[str, Any]]) -> Tuple[Dict[str, Any], float]:
-    """L3: LLM-based reranking to select the best answer."""
+def l3_llm_rerank(question: str, candidates: List[Dict[str, Any]]) -> Tuple[Dict[str, Any], float, List[Tuple[Dict[str, Any], float]]]:
+    """L3: LLM-based reranking to rank all candidates with confidence scores.
+    
+    Returns:
+        Tuple of (best_candidate, best_confidence, ranked_alternatives)
+        where ranked_alternatives is a list of (candidate, confidence) tuples
+    """
     if not candidates:
         raise ValueError("No candidates provided for reranking")
     
@@ -351,22 +364,24 @@ def l3_llm_rerank(question: str, candidates: List[Dict[str, Any]]) -> Tuple[Dict
 
 Твоя задача:
 1. Проанализируй вопрос клиента и все кандидаты
-2. Выбери ОДИН наиболее подходящий кандидат, который лучше всего отвечает на вопрос
-3. Оцени уверенность в выборе от 0 до 100
+2. ОЦЕНИ КАЖДОГО кандидата по релевантности к вопросу (от 0 до 100)
+3. Отсортируй кандидатов по релевантности
 
 ВАЖНО:
-- Ответ должен ТОЧНО соответствовать вопросу клиента
-- Если ни один кандидат не подходит идеально, выбери наиболее близкий
-- Не генерируй новый ответ, выбери из предложенных кандидатов
+- Оценивай ТОЧНОЕ соответствие вопросу клиента
+- Если несколько кандидатов похожи по релевантности, укажи близкие оценки
+- Не генерируй новый ответ, оценивай только предложенных кандидатов
 
 Верни ответ СТРОГО в формате JSON:
 {{
-  "selected_candidate": <номер кандидата 1-{len(candidates)}>,
-  "confidence": <число от 0 до 100>,
-  "reasoning": "Краткое объяснение выбора"
+  "rankings": [
+    {{"candidate": <номер 1-{len(candidates)}>, "confidence": <0-100>, "reasoning": "краткое объяснение"}},
+    {{"candidate": <номер 1-{len(candidates)}>, "confidence": <0-100>, "reasoning": "краткое объяснение"}},
+    ...
+  ]
 }}
 
-Верни ТОЛЬКО JSON, без дополнительного текста."""
+Верни ТОЛЬКО JSON, без дополнительного текста. Отсортируй rankings по убыванию confidence."""
     
     try:
         response = client.chat.completions.create(
@@ -375,8 +390,8 @@ def l3_llm_rerank(question: str, candidates: List[Dict[str, Any]]) -> Tuple[Dict
                 {"role": "system", "content": "Ты — эксперт по анализу релевантности. Отвечай только в формате JSON."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.1,  # Low temperature for consistent selection
-            max_tokens=300
+            temperature=0.1,
+            max_tokens=500
         )
         
         response_text = response.choices[0].message.content.strip()
@@ -388,20 +403,35 @@ def l3_llm_rerank(question: str, candidates: List[Dict[str, Any]]) -> Tuple[Dict
             response_text = response_text.split('```')[1].split('```')[0].strip()
         
         result = json.loads(response_text)
-        selected_idx = result['selected_candidate'] - 1  # Convert to 0-based index
-        confidence = result['confidence'] / 100.0  # Convert to 0-1 range
+        rankings = result.get('rankings', [])
         
-        if 0 <= selected_idx < len(candidates):
-            logger.info(f"LLM rerank selected candidate {selected_idx + 1} with confidence {confidence:.2f}")
-            return candidates[selected_idx], confidence
-        else:
-            logger.warning(f"Invalid candidate index {selected_idx}, using first candidate")
-            return candidates[0], 0.5
+        if not rankings:
+            logger.warning("No rankings returned from LLM, returning None")
+            return None, 0.0, []
+        
+        # Extract ranked candidates with confidence
+        ranked_results = []
+        for rank in rankings:
+            idx = rank['candidate'] - 1  # Convert to 0-based
+            conf = rank['confidence'] / 100.0  # Convert to 0-1 range
+            if 0 <= idx < len(candidates):
+                ranked_results.append((candidates[idx], conf))
+        
+        if not ranked_results:
+            logger.warning("No valid rankings extracted, returning None")
+            return None, 0.0, []
+        
+        # Best candidate is first in ranked results
+        best_candidate, best_confidence = ranked_results[0]
+        alternatives = ranked_results[1:]  # Rest are alternatives
+        
+        logger.info(f"LLM rerank: best candidate with confidence {best_confidence:.2f}, {len(alternatives)} alternatives")
+        return best_candidate, best_confidence, alternatives
     
     except Exception as e:
         logger.error(f"Error in LLM reranking: {e}", exc_info=True)
-        # Fallback to highest similarity
-        return candidates[0], 0.5
+        # Return None to indicate failure
+        return None, 0.0, []
 
 
 def generate_hint(question: str) -> Hint:
@@ -458,6 +488,21 @@ def generate_hint(question: str) -> Hint:
             processing_time = int((time.time() - start_time) * 1000)
             confidence_score = int(top_similarity * 100)  # Convert to 0-100
             logger.info(f"L2 high confidence match (similarity: {top_similarity:.3f}, confidence: {confidence_score}%)")
+            
+            # Check for similar confidence candidates (within 5% of top)
+            alternatives = []
+            for i, cand in enumerate(candidates[1:4], 1):  # Check next 3 candidates
+                cand_similarity = cand.get('similarity', 0)
+                cand_confidence = int(cand_similarity * 100)
+                # Include if within 5% of top confidence and above 80%
+                if cand_confidence >= 80 and abs(confidence_score - cand_confidence) <= 5:
+                    alternatives.append(Candidate(
+                        response=cand['template'],
+                        confidence=cand_confidence,
+                        category=cand.get('category', ''),
+                        subcategory=cand.get('subcategory', '')
+                    ))
+            
             return Hint(
                 response=candidates[0]['template'],
                 confidence=confidence_score,
@@ -466,20 +511,47 @@ def generate_hint(question: str) -> Hint:
                 template=candidates[0]['template'],
                 route="L2 Семантический поиск",
                 processing_time_ms=processing_time,
-                candidates_found=len(candidates)
+                candidates_found=len(candidates),
+                alternatives=alternatives
             )
         
         # --- L3: LLM Rerank ---
         # Use top 3 candidates for reranking
         top_candidates = candidates[:3]
-        selected_candidate, llm_confidence = l3_llm_rerank(question, top_candidates)
+        selected_candidate, llm_confidence, llm_alternatives = l3_llm_rerank(question, top_candidates)
         
         processing_time = int((time.time() - start_time) * 1000)
+        
+        # Check if LLM reranking failed
+        if selected_candidate is None:
+            logger.warning("L3 LLM rerank failed, returning low confidence result")
+            return Hint(
+                response="К сожалению, не удалось найти подходящий ответ. Пожалуйста, уточните ваш вопрос.",
+                confidence=0,
+                category="Неизвестно",
+                subcategory="Неизвестно",
+                route="L3 LLM rerank (failed)",
+                processing_time_ms=processing_time,
+                candidates_found=len(candidates)
+            )
         
         # Convert LLM confidence to 0-100 scale
         confidence_score = int(llm_confidence * 100)
         
         logger.info(f"L3 LLM rerank completed (confidence: {confidence_score}%, time: {processing_time}ms)")
+        
+        # Use LLM-ranked alternatives with their confidence scores
+        alternatives = []
+        if confidence_score >= 50:  # Only show alternatives if not extremely low
+            for alt_cand, alt_conf in llm_alternatives[:2]:  # Max 2 alternatives
+                alt_confidence = int(alt_conf * 100)
+                if alt_confidence >= 50:  # Only include decent candidates
+                    alternatives.append(Candidate(
+                        response=alt_cand['template'],
+                        confidence=alt_confidence,
+                        category=alt_cand.get('category', ''),
+                        subcategory=alt_cand.get('subcategory', '')
+                    ))
         
         return Hint(
             response=selected_candidate['template'],
@@ -489,7 +561,8 @@ def generate_hint(question: str) -> Hint:
             template=selected_candidate['template'],
             route="L3 LLM rerank",
             processing_time_ms=processing_time,
-            candidates_found=len(candidates)
+            candidates_found=len(candidates),
+            alternatives=alternatives
         )
     
     except Exception as e:

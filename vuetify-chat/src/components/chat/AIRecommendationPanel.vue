@@ -68,52 +68,102 @@
     </v-card-text>
     
     <v-card-text v-else-if="currentHint" class="hint-content">
-      <!-- Metadata chips -->
-      <div class="mb-3">
-        <div class="d-flex flex-wrap gap-2 mb-2">
-          <v-chip v-if="currentHint.category" size="small" color="primary" prepend-icon="mdi-folder">
-            {{ currentHint.category }}
-          </v-chip>
-          <v-chip v-if="currentHint.subcategory" size="small" color="secondary" prepend-icon="mdi-folder-outline">
-            {{ currentHint.subcategory }}
-          </v-chip>
-          <v-chip :color="getConfidenceColor(currentHint.confidence)" size="small" prepend-icon="mdi-chart-line">
-            {{ getConfidencePercentage(currentHint.confidence) }}
-          </v-chip>
-          <v-chip v-if="currentHint.route" size="small" color="info" prepend-icon="mdi-routes">
-            {{ currentHint.route }}
-          </v-chip>
-          <v-chip v-if="currentHint.processing_time_ms" size="small" color="grey-darken-1" prepend-icon="mdi-clock-outline">
-            {{ currentHint.processing_time_ms }}ms
-          </v-chip>
-        </div>
+      <!-- Low confidence state - "Ответ не найден" -->
+      <div v-if="isExtremelyLowConfidence" class="text-center pa-6">
+        <v-icon color="grey" size="48" class="mb-3">mdi-information-outline</v-icon>
+        <p class="text-grey text-h6 mb-0">Ответ не найден</p>
       </div>
       
-      <div class="hint-response mb-3">
-        <div class="d-flex justify-space-between align-center mb-2">
-          <strong>Recommendation:</strong>
-          <v-btn
-            @click="copyRecommendation"
-            size="small"
-            variant="text"
-            color="primary"
-            prepend-icon="mdi-content-copy"
-          >
-            Copy
-          </v-btn>
+      <!-- Normal confidence state -->
+      <div v-else>
+        <!-- Metadata chips -->
+        <div class="mb-3">
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            <v-chip v-if="currentHint.category" size="small" color="primary" prepend-icon="mdi-folder">
+              {{ currentHint.category }}
+            </v-chip>
+            <v-chip v-if="currentHint.subcategory" size="small" color="secondary" prepend-icon="mdi-folder-outline">
+              {{ currentHint.subcategory }}
+            </v-chip>
+            <v-chip :color="getConfidenceColor(currentHint.confidence)" size="small" prepend-icon="mdi-chart-line">
+              {{ getConfidencePercentage(currentHint.confidence) }}
+            </v-chip>
+            <v-chip v-if="currentHint.route" size="small" color="info" prepend-icon="mdi-routes">
+              {{ currentHint.route }}
+            </v-chip>
+            <v-chip v-if="currentHint.processing_time_ms" size="small" color="grey-darken-1" prepend-icon="mdi-clock-outline">
+              {{ currentHint.processing_time_ms }}ms
+            </v-chip>
+          </div>
         </div>
-        <div v-if="currentHint.content" class="recommendation-text">{{ currentHint.content }}</div>
-        <div v-else class="recommendation-text text-grey">
-          <v-icon color="warning" class="mr-2">mdi-alert</v-icon>
-          No recommendation available. The system may need initialization.
+        
+        <!-- Main recommendation -->
+        <div class="hint-response mb-3">
+          <div class="d-flex justify-space-between align-center mb-2">
+            <strong>Recommendation:</strong>
+            <v-btn
+              @click="copyRecommendation(currentHint.content)"
+              size="small"
+              variant="text"
+              color="primary"
+              prepend-icon="mdi-content-copy"
+            >
+              Copy
+            </v-btn>
+          </div>
+          <div v-if="currentHint.content" class="recommendation-text">{{ currentHint.content }}</div>
+          <div v-else class="recommendation-text text-grey">
+            <v-icon color="warning" class="mr-2">mdi-alert</v-icon>
+            No recommendation available. The system may need initialization.
+          </div>
         </div>
-      </div>
-      
-      <v-divider v-if="currentHint.template" class="my-3"></v-divider>
-      
-      <div v-if="currentHint.template" class="hint-template">
-        <strong>Source Template:</strong>
-        <p class="mt-2">{{ currentHint.template }}</p>
+        
+        <!-- Alternative candidates -->
+        <div v-if="hasAlternatives" class="alternatives-section">
+          <v-divider class="my-3"></v-divider>
+          <div class="mb-2">
+            <strong>Alternative Recommendations:</strong>
+            <span class="text-caption text-grey ml-2">(Similar confidence)</span>
+          </div>
+          
+          <v-expansion-panels variant="accordion" class="mb-3">
+            <v-expansion-panel
+              v-for="(alt, index) in sortedAlternatives"
+              :key="index"
+              elevation="0"
+            >
+              <v-expansion-panel-title class="pa-3">
+                <div class="d-flex align-center gap-2 flex-wrap">
+                  <v-chip size="x-small" :color="getConfidenceColor(alt.confidence)" prepend-icon="mdi-chart-line">
+                    {{ getConfidencePercentage(alt.confidence) }}
+                  </v-chip>
+                  <v-chip v-if="alt.category" size="x-small" color="primary">
+                    {{ alt.category }}
+                  </v-chip>
+                  <v-chip v-if="alt.subcategory" size="x-small" color="secondary">
+                    {{ alt.subcategory }}
+                  </v-chip>
+                </div>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <div class="alternative-text pa-2">
+                  {{ alt.response }}
+                </div>
+                <div class="d-flex justify-end mt-2">
+                  <v-btn
+                    @click="copyRecommendation(alt.response)"
+                    size="x-small"
+                    variant="text"
+                    color="primary"
+                    prepend-icon="mdi-content-copy"
+                  >
+                    Copy
+                  </v-btn>
+                </div>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </div>
       </div>
     </v-card-text>
   </v-card>
@@ -147,10 +197,30 @@ const clearSelection = () => {
   messageStore.clearSelectedMessages();
 };
 
-const copyRecommendation = async () => {
-  if (currentHint.value && currentHint.value.content) {
+// Check if confidence is extremely low (below 30%)
+const isExtremelyLowConfidence = computed(() => {
+  if (!currentHint.value) return false;
+  const confValue = typeof currentHint.value.confidence === 'number' 
+    ? currentHint.value.confidence 
+    : parseInt(currentHint.value.confidence) || 0;
+  return confValue < 30;
+});
+
+// Check if there are alternative recommendations
+const hasAlternatives = computed(() => {
+  return currentHint.value?.alternatives && currentHint.value.alternatives.length > 0;
+});
+
+// Sort alternatives by confidence descending
+const sortedAlternatives = computed(() => {
+  if (!hasAlternatives.value) return [];
+  return [...currentHint.value.alternatives].sort((a, b) => b.confidence - a.confidence);
+});
+
+const copyRecommendation = async (text) => {
+  if (text) {
     try {
-      await navigator.clipboard.writeText(currentHint.value.content);
+      await navigator.clipboard.writeText(text);
       messageStore.displaySystemMessage("success", "Recommendation copied to clipboard!", 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
@@ -254,5 +324,18 @@ const getConfidencePercentage = (confidence) => {
 
 .gap-2 {
   gap: 8px;
+}
+
+.alternatives-section {
+  margin-top: 16px;
+}
+
+.alternative-text {
+  white-space: pre-wrap;
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 </style>

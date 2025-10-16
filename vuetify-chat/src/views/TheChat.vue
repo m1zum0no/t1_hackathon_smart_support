@@ -31,12 +31,11 @@
       <!-- LEFT PANEL CHATS END -->
 
       <!-- COLLAPSE BUTTON -->
-      <div v-if="!compactView && isChat && chatSelected" class="collapse-button-container">
+      <div v-if="!compactView && isChat && chatSelected" class="collapse-button-container" :style="{ left: leftPanelCollapsed ? '0' : 'calc(25% - 20px)' }">
         <v-btn
           @click="toggleLeftPanel"
           icon
           size="small"
-          color="primary"
           elevation="2"
           class="collapse-btn"
         >
@@ -45,7 +44,7 @@
       </div>
 
       <!-- CENTER PANEL START  ONLY FOR LARGE VIEW -->
-      <v-col v-if="!compactView" :cols="getCenterPanelCols" class="ma-0 pa-0" :class="leftPanelCollapsed ? 'rounded-s-lg' : ''">
+      <v-col v-if="!compactView" :cols="getCenterPanelCols" class="ma-0 pa-0 chat-panel-height" :class="leftPanelCollapsed ? 'rounded-s-lg' : ''">
 
         <SelectedChatWindow v-if="isChat && chatSelected" />
         <EmptyChatWindow v-else-if="isChat && !chatSelected" />
@@ -54,7 +53,7 @@
       <!-- CENTER PANEL END -->
       
       <!-- RIGHT AI PANEL START - ONLY FOR LARGE VIEW -->
-      <v-col v-if="!compactView && isChat && chatSelected" :cols="getRightPanelCols" class="ma-0 pa-0">
+      <v-col v-if="!compactView && isChat && chatSelected" :cols="getRightPanelCols" class="ma-0 pa-0 chat-panel-height">
         <AIRecommendationPanel />
       </v-col>
       <!-- RIGHT AI PANEL END -->
@@ -210,7 +209,6 @@ onUnmounted(() => {
 <style scoped>
 .collapse-button-container {
   position: absolute;
-  left: 0;
   top: 50%;
   transform: translateY(-50%);
   z-index: 100;
@@ -218,11 +216,18 @@ onUnmounted(() => {
 }
 
 .collapse-btn {
-  background-color: white !important;
+  background-color: rgb(var(--v-theme-success)) !important;
+  color: white !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 .collapse-btn:hover {
+  background-color: rgb(var(--v-theme-success-darken-1)) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.chat-panel-height {
+  min-height: 700px;
+  height: 700px;
 }
 </style>
